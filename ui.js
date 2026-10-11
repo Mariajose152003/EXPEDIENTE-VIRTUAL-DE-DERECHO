@@ -5,6 +5,7 @@
 
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const cap1 = s => { s = String(s||"").toLowerCase(); return s.charAt(0).toUpperCase() + s.slice(1); };
+let cargaInicialDatos = Promise.resolve();
 
 /* ===================== TOAST ===================== */
 let toastT;
@@ -217,7 +218,7 @@ $("formBusq").onsubmit = e => {
       const instancia = ({ JR: "JUZGADO ESPECIALIZADO", JP: "JUZGADO DE PAZ LETRADO", SP: "SALA SUPERIOR" })[instanciaCodigo] || instanciaCodigo;
       const especialidad = x.esp || ({ LA: "LABORAL", CI: "CIVIL", PE: "PENAL", FC: "FAMILIA CIVIL", CO: "COMERCIAL" })[codigo[5]] || "";
 
-      // 1. Número de Expediente (acepta el número con o sin ceros iniciales)
+      // 1. Número de expediente (acepta ceros iniciales opcionales)
       const matchNum = secuencia === num || parseInt(secuencia, 10) === parseInt(numVal, 10);
       if (!matchNum) return false;
 
@@ -720,8 +721,10 @@ function inicializarCargaCarpeta() {
     if (!files.length) return;
     selectButton.disabled = true;
     status.classList.remove("err");
-    status.textContent = "Leyendo archivos en este navegador; no se están enviando a Internet...";
     try {
+      status.textContent = "Esperando a que se complete la carga inicial...";
+      await cargaInicialDatos;
+      status.textContent = "Leyendo archivos en este navegador; no se están enviando a Internet...";
       const pdfResult = await window.importarPdfsCarpeta(files, progress => {
         status.textContent = `Guardando PDF ${progress.completed} de ${progress.total} en este navegador...`;
       });
@@ -963,7 +966,7 @@ document.addEventListener("keydown", e => {
 
 /* ===================== INICIO ===================== */
 inicializarCargaCarpeta();
-cargarDB();
+cargaInicialDatos = cargarDB();
 (() => {
   const s = sessionStorage.getItem("sice_sesion"), db = users();
   if (s && db[s]) entrar(s, db[s].nombre);
