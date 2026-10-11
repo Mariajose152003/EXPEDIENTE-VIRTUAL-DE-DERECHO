@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consulta de Expedientes Judiciales - Poder Judicial del Perú</title>
+<meta name="description" content="Consulta de Expedientes Judiciales - Cortes Superiores de Justicia del Perú. Búsqueda por filtros o por código de expediente.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="pj.css">
+</head>
+<body>
+
+<!-- ===================== MODAL DE ADVERTENCIA (SIMULACIÓN ACADÉMICA) ===================== -->
+<div id="modalAdvertencia" class="adv-overlay">
+  <div class="adv-card fade-in">
+    <div class="adv-header">
+      <div class="adv-icon-badge">
+        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+    </div>
+    <div class="adv-stripe"></div>
+    <div class="adv-body">
+      <h3 class="adv-text">Advertencia: Esto solo es un entorno de simulación académica</h3>
+      <button type="button" id="btnEntendido" class="btn-entendido">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== LOGIN ===================== -->
+<section id="vistaLogin" class="login">
+  <div class="login-glow-bg"></div>
+  <div class="login-wrapper fade-in">
+    <div class="login-brand-panel">
+      <div class="login-insignia">
+        <div class="insignia-scale"><i class="fa-solid fa-scale-balanced"></i></div>
+        <div class="insignia-badge">PJ • PERÚ</div>
+      </div>
+      <h1 class="login-brand-title">PODER JUDICIAL DEL PERÚ</h1>
+      <p class="login-brand-motto">Justicia Honorable, País Respetable</p>
+      <div class="login-brand-info">
+        <div class="brand-item">
+          <i class="fa-solid fa-shield-halved"></i>
+          <div><b>SICE Digital 2.5</b><span>Consulta Pública de Expedientes</span></div>
+        </div>
+        <div class="brand-item">
+          <i class="fa-solid fa-gavel"></i>
+          <div><b>Cortes Superiores</b><span>Resoluciones y Actuaciones Oficiales</span></div>
+        </div>
+      </div>
+      <div class="brand-disclaimer">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span>Entorno con fines académicos de estudio procesal.</span>
+      </div>
+    </div>
+
+    <form id="formLogin" class="login-card" autocomplete="off">
+      <div class="login-card-head">
+        <div class="login-pj-strip">
+          <div class="pj-logo-mini">
+            <div><i></i><i class="o"></i><i></i></div>
+            <div><i class="o"></i><i></i><i class="o"></i></div>
+          </div>
+          <span>ACCESO AL SISTEMA</span>
+        </div>
+        <h2 id="tituloLogin">Iniciar Sesión</h2>
+        <p class="login-card-sub">Ingresa con tus credenciales asignadas</p>
+      </div>
+
+      <div class="login-fields">
+        <label class="lg-field">
+          <span>Usuario</span>
+          <div class="lg-input">
+            <i class="fa-solid fa-user"></i>
+            <input id="lUser" required minlength="4" placeholder="Ej. usuario" autocomplete="username">
+          </div>
+        </label>
+
+        <label class="lg-field">
+          <span>Contraseña</span>
+          <div class="lg-input">
+            <i class="fa-solid fa-lock"></i>
+            <input id="lPass" type="password" required minlength="6" placeholder="••••••••" autocomplete="current-password">
+            <button type="button" class="btn-pwd-toggle" id="btnTogglePass" title="Ver contraseña"><i class="fa-regular fa-eye"></i></button>
+          </div>
+        </label>
+
+        <label class="lg-field" id="lblNombre" hidden>
+          <span>Nombre completo</span>
+          <div class="lg-input">
+            <i class="fa-solid fa-id-card"></i>
+            <input id="lNombre" placeholder="Tu nombre">
+          </div>
+        </label>
+
+        <p id="loginMsg" class="msg" role="alert"></p>
+
+        <button class="btn-login-submit" type="submit" id="btnLogin">
+          <span>INGRESAR AL SISTEMA</span>
+          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+        </button>
+
+        <button class="btn-link" type="button" id="btnModo">¿No tienes cuenta? Regístrate</button>
+        <button class="btn-link-sec" type="button" id="btnVerAdvertencia"><i class="fa-solid fa-triangle-exclamation"></i> Ver advertencia de simulación</button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== APP ===================== -->
+<div id="vistaApp" class="app" hidden>
+
+  <!-- HEADER INSTITUCIONAL -->
+  <header class="pj-header">
+    <div class="container hdr-row">
+      <div class="hdr-left">
+        <div class="pj-logo">
+          <div><i class="f"></i><i class="o"></i><i class="f"></i></div>
+          <div><i class="o"></i><i class="f"></i><i class="o"></i></div>
+        </div>
+        <div>
+          <h1 class="hdr-title">Poder Judicial del Perú</h1>
+          <p class="hdr-sub">Justicia Honorable, País Respetable</p>
+        </div>
+      </div>
+      <div class="hdr-right">
+        <i class="fa-solid fa-scale-balanced hdr-scale"></i>
+        <div>
+          <h2 class="hdr-app">Consulta de Expedientes Judiciales</h2>
+          <p class="hdr-ver">Versión 2.5.0</p>
+          <p class="hdr-cortes">Cortes Superiores de Justicia</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVEGACIÓN -->
+  <nav class="pj-nav">
+    <div class="container nav-row">
+      <ul class="nav-links">
+        <li><a href="#" id="navInicio">Inicio</a></li>
+        <li><a href="#" id="navVideos">Videotutoriales</a></li>
+        <li><a href="#" id="navAyuda">Preguntas Frecuentes</a></li>
+        <li><a href="admin.html" target="_blank" id="btnAdmin" hidden><i class="fa-solid fa-gear"></i> Gestión</a></li>
+      </ul>
+      <div class="nav-info">
+        <p id="current-datetime">Fecha: --/--/---- Hora: --:--:--</p>
+        <p>Tiempo restante de sesión: <span id="sesionRestante" class="rose">15:00</span></p>
+        <p class="nav-user"><i class="fa-solid fa-circle-user"></i> <span id="usuario"></span>
+          <button id="btnSalir" class="nav-out" title="Cerrar sesión"><i class="fa-solid fa-power-off"></i></button></p>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="container main">
+
+    <!-- VISTA 1: BÚSQUEDA -->
+    <div id="vista-busqueda" class="fade-in">
+      <div class="comunicado">
+        <h4>Comunicado</h4>
+        <p>Se ha incluido un nuevo campo como medida técnica de protección, para que solo las partes puedan acceder a sus expedientes...<br>
+          <span>Al amparo de la ley N° 29733, Ley de Protección de Datos Personales.</span></p>
+      </div>
+
+      <h2 class="sec-title">Búsqueda de Expedientes</h2>
+
+      <form id="formBusq" class="search-card" autocomplete="off" novalidate>
+        <div class="search-tabs">
+          <button type="button" class="stab on" data-t="filtros" id="btn-filtros">Por filtros</button>
+          <button type="button" class="stab" data-t="codigo" id="btn-codigo">Por Código de Expediente</button>
+        </div>
+
+        <!-- POR FILTROS -->
+        <div id="tab-filtros" class="tab-pane">
+          <div class="frow"><label for="fDist">Distrito judicial <em>(*)</em></label><select id="fDist" class="hl"></select></div>
+          <div class="frow"><label for="fInst">Instancia <em>(*)</em></label><select id="fInst"></select></div>
+          <div class="frow"><label for="fEsp">Especialidad <em>(*)</em></label><select id="fEsp"></select></div>
+          <div class="frow"><label for="fAnio">Año <em>(*)</em></label><select id="fAnio" class="hl"></select></div>
+          <div class="frow"><label for="fNum">N° Expediente <em>(*)</em></label><input id="fNum" class="center" maxlength="5" inputmode="numeric" placeholder="N° EXPEDIENTE"></div>
+        </div>
+
+        <!-- POR CÓDIGO -->
+        <div id="tab-codigo" class="tab-pane" hidden>
+          <p class="cod-label">Código del expediente:</p>
+          <div class="cod-row">
+            <div class="cod-f"><span class="hint">Secuencia 5 dígitos</span><input id="c1" maxlength="5" class="code-input w20" placeholder="00001"></div><b>-</b>
+            <div class="cod-f"><span class="req">(*)</span><input id="c2" maxlength="4" class="code-input w16" placeholder="2005"></div><b>-</b>
+            <div class="cod-f"><span class="req">(*)</span><input id="c3" maxlength="1" class="code-input w10" placeholder="0"></div><b>-</b>
+            <div class="cod-f"><span class="req">(*)</span><input id="c4" maxlength="4" class="code-input w16" placeholder="1817"></div><b>-</b>
+            <div class="cod-f"><span class="req">(*)</span><input id="c5" maxlength="2" class="code-input w12 up" placeholder="JR"></div><b>-</b>
+            <div class="cod-f"><span class="req">(*)</span><input id="c6" maxlength="2" class="code-input w12 up" placeholder="PE"></div><b>-</b>
+            <div class="cod-f"><span class="req">(*)</span><input id="c7" maxlength="2" class="code-input w12" placeholder="01"></div>
+          </div>
+          <div class="diag">
+            <div class="diag-title">Expediente N°: 00000-0000-0-0000-JR-CI-00</div>
+            <div class="diag-cols">
+              <div><div class="diag-line"></div><div class="diag-box">Secuencia<br>5 dígitos</div></div>
+              <div><div class="diag-line"></div><div class="diag-box">Número<br>4 dígitos</div></div>
+              <div><div class="diag-line"></div><div class="diag-box">Número<br>4 dígitos</div></div>
+              <div><div class="diag-line"></div><div class="diag-box">Secuencia<br>2 dígitos</div></div>
+            </div>
+            <div class="ejem">
+              <small>Ejemplo (clic para autocompletar):</small>
+              <button type="button" data-ej="00000-0000-0-0000-JR-CI-00">00000-0000-0-0000-JR-CI-00 (Ejemplo)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PARTE (común) -->
+        <div class="tab-pane pt0">
+          <div class="frow top">
+            <label for="fParte">Parte <em>(*)</em></label>
+            <div class="grow">
+              <input id="fParte" class="bold up" placeholder="APELLIDO PATERNO Y APELLIDO MATERNO O RAZÓN SOCIAL">
+              <p class="help">Ingrese los apellidos completos conforme aparecen en el expediente.</p>
+            </div>
+          </div>
+          <p class="req-note">(*) Datos obligatorios</p>
+        </div>
+
+        <!-- CAPTCHA -->
+        <div class="captcha">
+          <p class="cap-title">Escriba el código mostrado</p>
+          <div class="cap-row">
+            <div class="cap-box"><span id="captcha-text"></span></div>
+            <button type="button" class="cap-btn" id="capRef" title="Regenerar código"><i class="fa-solid fa-arrows-rotate"></i></button>
+            <button type="button" class="cap-btn" id="capVoz" title="Escuchar código"><i class="fa-solid fa-volume-high"></i></button>
+            <input id="captcha-input" class="cap-in" maxlength="4" autocomplete="off" aria-label="Código de verificación">
+          </div>
+          <p id="busqMsg" class="msg" role="alert"></p>
+          <button class="btn-consultar" type="submit" id="btnConsultar">Consultar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- VISTA 2: RESULTADOS -->
+    <div id="vista-resultados" class="fade-in" hidden>
+      <div class="res-card">
+        <div class="res-head">
+          <div class="res-head-l"><span class="res-ico"><i class="fa-solid fa-list-check"></i></span><h2>Resultados de la Consulta</h2></div>
+          <button class="btn-ghost" id="btnNuevaBusq">Nueva Búsqueda</button>
+        </div>
+        <div class="res-sub">
+          <p id="res-count">Se encontraron 0 expediente(s) vinculados a la búsqueda</p>
+          <p id="res-update" class="muted">Actualizado: --</p>
+        </div>
+        <div class="res-body">
+          <table class="res-table">
+            <thead><tr><th>#</th><th>N° Expediente</th><th>Materia / Delito</th><th>Órgano Jurisdiccional</th><th class="c">Estado</th><th class="c">Acciones</th></tr></thead>
+            <tbody id="res-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA 3: DETALLE INTEGRAL -->
+    <div id="vista-detalle" class="fade-in" hidden>
+      <div class="det-head">
+        <div class="det-head-l">
+          <div class="det-ico"><i class="fa-solid fa-folder-tree"></i></div>
+          <div>
+            <div class="det-kicker"><p>Sistema Integrado Judicial (SIJ)</p><span id="det-badge" class="badge-active">Expediente Activo</span></div>
+            <h2 id="det-titulo">N° —</h2>
+            <p id="det-subtitulo" class="det-sub"></p>
+          </div>
+        </div>
+        <div class="det-actions">
+          <button class="dbtn white" id="btnImprimir"><i class="fa-solid fa-print"></i>Imprimir Reporte</button>
+          <button class="dbtn rose" id="btnResumenIA"><i class="fa-solid fa-brain"></i>Resumen Inteligente</button>
+          <button class="dbtn wine" id="btnExaminar"><i class="fa-solid fa-magnifying-glass-chart"></i>Examinar Caso</button>
+          <button class="dbtn orange" id="btnReniec"><i class="fa-solid fa-id-card"></i>RENIEC</button>
+        </div>
+      </div>
+
+      <!-- MAPA PROCESAL PREDICTIVO -->
+      <div class="mapa">
+        <button class="mapa-head" id="mapaToggle" type="button" aria-expanded="true">
+          <span><i class="fa-solid fa-book-open"></i> Mapa Procesal Predictivo (Ruta del Expediente)</span>
+          <i class="fa-solid fa-chevron-up mapa-chev"></i>
+        </button>
+        <div class="mapa-body" id="mapaBody">
+          <button class="mapa-arrow l" id="mapaPrev" type="button" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="mapa-scroll" id="mapaScroll">
+            <div class="mapa-track" id="mapaTrack"></div>
+          </div>
+          <button class="mapa-arrow r" id="mapaNext" type="button" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <!-- TABS DETALLE -->
+      <div class="det-tabs">
+        <button class="dtab" data-d="resumen" id="btn-d-resumen">Resumen</button>
+        <button class="dtab" data-d="metadatos" id="btn-d-metadatos">Metadatos</button>
+        <button class="dtab" data-d="partes" id="btn-d-partes">Sujetos Procesales</button>
+        <button class="dtab" data-d="actuaciones" id="btn-d-actuaciones">Actuaciones</button>
+        <button class="dtab" data-d="cronologia" id="btn-d-cronologia">Línea de Tiempo</button>
+      </div>
+
+      <div class="det-body">
+        <!-- 1. RESUMEN -->
+        <section id="cont-resumen" class="dpane fade-in">
+          <div class="pane-title"><i class="fa-solid fa-scale-balanced"></i><h3>Síntesis Jurídica del Caso</h3></div>
+          <div class="res-grid">
+            <div class="caso-card">
+              <h5>Caso</h5>
+              <p id="res-caso"></p>
+              <div class="tags" id="res-tags"></div>
+              <div class="prog">
+                <div class="prog-top"><span>Avance global del proceso</span><b id="res-pct">0%</b></div>
+                <div class="prog-track"><div class="prog-bar" id="res-bar"></div></div>
+              </div>
+            </div>
+            <div class="sit-card">
+              <i class="fa-solid fa-gavel sit-bg"></i>
+              <p class="sit-k">Situación Resolutiva</p>
+              <p class="sit-t" id="res-sit-t"></p>
+              <p class="sit-d" id="res-sit-d"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. METADATOS -->
+        <section id="cont-metadatos" class="dpane fade-in" hidden>
+          <div class="pane-title"><i class="fa-solid fa-database"></i><h3>Metadatos Completos (SIJ - PJ)</h3></div>
+          <div class="meta-wrap"><table class="meta-table"><tbody id="meta-tbody"></tbody></table></div>
+        </section>
+
+        <!-- 3. SUJETOS PROCESALES -->
+        <section id="cont-partes" class="dpane fade-in" hidden>
+          <div class="pane-title"><i class="fa-solid fa-users-gear"></i><h3>Sujetos Procesales Registrados</h3></div>
+          <div class="partes-grid" id="partes-grid"></div>
+        </section>
+
+        <!-- 4. ACTUACIONES -->
+        <section id="cont-actuaciones" class="dpane fade-in" hidden>
+          <div class="pane-title"><i class="fa-solid fa-scroll"></i><h3>Historial de Actuaciones (SIJ)</h3></div>
+
+          <div class="full-exp-banner">
+            <div class="full-exp-info">
+              <span class="full-exp-icon"><i class="fa-solid fa-file-pdf"></i></span>
+              <div>
+                <h4>Documentos del expediente</h4>
+                <p>Los documentos disponibles para cada expediente se mostraran aqui.</p>
+              </div>
+            </div>
+            <div class="full-exp-actions">
+              <button class="btn-full-ver" id="btnVerExpCompleto" type="button"><i class="fa-solid fa-book-open"></i> Visualizar Expediente Completo</button>
+            </div>
+          </div>
+
+          <div class="act-wrap">
+            <table class="act-table">
+              <thead><tr><th>N°</th><th>Fecha Actuación</th><th>Acto Procesal</th><th class="c">Gestión de Documento</th></tr></thead>
+              <tbody id="act-tbody"></tbody>
+            </table>
+          </div>
+          <div class="paginacion" id="act-pag"></div>
+        </section>
+
+        <!-- 5. LÍNEA DE TIEMPO -->
+        <section id="cont-cronologia" class="dpane fade-in" hidden>
+          <div class="pane-title"><i class="fa-solid fa-clock-rotate-left"></i><h3>Línea de Tiempo Procesal</h3></div>
+          <div class="tl" id="tl-list"></div>
+        </section>
+
+        <div class="back-row">
+          <button class="btn-back" id="btnVolverLista"><i class="fa-solid fa-left-long"></i> Regresar al listado</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="pj-footer">
+    <p class="ft-brand">Poder Judicial del Perú</p>
+    <p class="ft-addr">Av. Paseo de la República S/N Palacio de Justicia, Cercado, Lima - Perú · Simulador académico, datos ficticios</p>
+  </footer>
+</div>
+
+<!-- VISOR DE DOCUMENTOS -->
+<div id="visorModal" class="overlay dark" hidden>
+  <div class="visor-card fade-in">
+    <div class="visor-head">
+      <span>Visor CEJ: <em id="visor-nombre"></em></span>
+      <div class="visor-act">
+        <a id="visorExt" href="#" target="_blank" rel="noopener" title="Abrir en pestaña nueva"><i class="fa-solid fa-up-right-from-square"></i></a>
+        <button id="btnCerrarVisor" title="Cerrar"><i class="fa-solid fa-circle-xmark"></i></button>
+      </div>
+    </div>
+    <div class="visor-body"><iframe id="iframe-drive" src="" allow="autoplay" title="Documento"></iframe></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"><i class="fa-solid fa-fingerprint"></i><p id="toast-msg">Procesando...</p></div>
+
+<!-- BOTÓN ASISTENTE IA -->
+<button id="aiAssistantBtn" class="ai-fab" title="Asistente IA" hidden><i class="fa-solid fa-robot"></i></button>
+
+<!-- MODAL RENIEC -->
+<div id="reniecModal" class="overlay" hidden>
+  <div class="reniec-card fade-in">
+    <div class="reniec-head">
+      <div class="rh-l"><span class="rh-ico"><i class="fa-solid fa-id-card"></i></span><div><h3>RENIEC</h3><p>Búsqueda</p></div></div>
+      <button id="btnCerrarReniec"><i class="fa-solid fa-circle-xmark"></i></button>
+    </div>
+    <div class="reniec-body">
+      <div class="rsearch">
+        <input id="dniInput" maxlength="8" inputmode="numeric" placeholder="DNI">
+        <button id="btnBuscarDni"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+      <div id="reniecResults" hidden>
+        <div class="rres">
+          <h4><i class="fa-solid fa-circle-check"></i> Datos</h4>
+          <div class="rgrid" id="reniecGrid"></div>
+        </div>
+      </div>
+      <div id="reniecError" class="rerr" hidden>
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <div><h4>DNI no encontrado</h4><p>No se encontró en la base de datos.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ASISTENTE IA -->
+<div id="iaModal" class="overlay" hidden>
+  <div class="ia-card fade-in">
+    <div class="ia-head">
+      <div class="rh-l"><span class="ia-ico"><i class="fa-solid fa-robot"></i></span><div><h3>Asistente IA</h3><p>Sistema Inteligente de Consultas Judiciales</p></div></div>
+      <button id="btnCerrarIA"><i class="fa-solid fa-circle-xmark"></i></button>
+    </div>
+    <div id="iaChat" class="ia-chat"></div>
+    <form id="iaForm" class="ia-input">
+      <input id="iaInput" placeholder="Escribe tu pregunta..." autocomplete="off">
+      <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+    </form>
+  </div>
+</div>
+
+<script src="pdf_storage.js"></script>
+<script src="app.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>

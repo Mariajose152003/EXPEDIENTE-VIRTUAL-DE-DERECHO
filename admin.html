@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SICE - Módulo de Gestión y Administración de Expedientes</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Estilos específicos del Dashboard Administrativo Black & Pink */
+.admin-page {
+  background-color: var(--bg-deep);
+  min-height: 100vh;
+  color: var(--txt-main);
+}
+.admin-topbar {
+  background: #090a10;
+  color: #ffffff;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--pink-main);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.admin-branding {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.admin-badge {
+  background: rgba(248, 81, 181, 0.15);
+  color: var(--pink-main);
+  border: 1px solid var(--pink-main);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  box-shadow: var(--pink-glow);
+}
+.admin-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: #f1f5f9;
+  font-weight: 700;
+}
+.admin-container {
+  max-width: 1280px;
+  margin: 28px auto;
+  padding: 0 20px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* KPIs Stats Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+.kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--pink-main);
+  box-shadow: var(--shadow-md);
+}
+.kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #171926;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 1px solid var(--border);
+}
+.kpi-info h4 {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--txt-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+.kpi-info b {
+  font-size: 22px;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+/* Tarjeta Principal */
+.dash-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.dash-card-hdr {
+  background: linear-gradient(135deg, #090a10 0%, #151824 100%);
+  color: #ffffff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--pink-main);
+}
+.dash-card-hdr h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dash-card-body {
+  padding: 24px;
+}
+
+/* Buscador de expedientes */
+.search-filter-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.search-filter-input {
+  max-width: 400px;
+  padding: 9px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: #ffffff;
+}
+
+/* Tabla Administrativa */
+.tbl-admin {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.tbl-admin th {
+  background: #0a0b12;
+  color: var(--pink-main);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 800;
+  border-bottom: 2px solid var(--border);
+  font-size: 12px;
+}
+.tbl-admin td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: #ffffff;
+}
+.tbl-admin tr:nth-child(even) td {
+  background: #141724;
+}
+.tbl-admin tr:hover td {
+  background: #1c2033;
+}
+.code-tag {
+  background: #090a10;
+  border: 1px solid var(--pink-border);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: Consolas, monospace;
+  font-weight: 800;
+  color: var(--pink-main);
+  font-size: 12px;
+}
+.btn-action-sm {
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+.btn-action-edit {
+  background: rgba(248, 81, 181, 0.15);
+  color: var(--pink-main);
+  border-color: var(--pink-main);
+}
+.btn-action-edit:hover {
+  background: var(--pink-main);
+  color: #ffffff;
+  box-shadow: var(--pink-glow);
+}
+.btn-action-del {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border-color: #ef4444;
+}
+.btn-action-del:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* Banner de Código Generado en Tiempo Real */
+.preview-code-box {
+  background: #0a0b14;
+  border: 1.5px dashed var(--pink-main);
+  border-radius: 8px;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.preview-code-lbl {
+  font-size: 12px;
+  color: var(--txt-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.preview-code-val {
+  font-family: Consolas, monospace;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--pink-main);
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(248, 81, 181, 0.4);
+}
+
+/* Grilla del formulario */
+.form-section-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--pink-main);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+  margin: 20px 0 16px;
+  border-bottom: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--txt-main);
+}
+.form-field small {
+  font-size: 11px;
+  color: var(--txt-muted);
+}
+
+/* Filas de Actuaciones */
+.act-row-item {
+  background: #0d0f18;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--pink-main);
+  border-radius: 6px;
+  padding: 14px;
+  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: 70px 110px 160px 1fr 280px 40px;
+  gap: 12px;
+  align-items: center;
+  transition: all 0.2s;
+}
+.act-row-item:hover {
+  background: #141724;
+  border-color: var(--pink-main);
+}
+
+.upload-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid #10b981;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media(max-width: 950px) {
+  .act-row-item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+</style>
+</head>
+<body class="admin-page">
+
+  <!-- TOP BAR NAVEGACIÓN -->
+  <header class="admin-topbar">
+    <div class="admin-branding">
+      <span style="font-size:24px">⚖️</span>
+      <div>
+        <b style="font-size:18px;letter-spacing:0.5px">SICE ADMIN</b>
+        <span class="admin-badge">Gestión de Expedientes</span>
+      </div>
+    </div>
+    <div class="admin-user-pill">
+      <span>👤 Usuario: <b id="admUsuarioNom">Administrador</b></span>
+      <a href="index.html" class="btn-s" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+        ⬅ Volver a Consulta Pública
+      </a>
+      <button id="btnSalirAdmin" class="btn-s" style="background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4)">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <div class="admin-container">
+
+    <!-- KPIs DE ESTADO -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="color:var(--pink-main)">📁</div>
+        <div class="kpi-info">
+          <h4>Total Expedientes</h4>
+          <b id="kpiTotal">0</b>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="color:#fbbf24">⚖️</div>
+        <div class="kpi-info">
+          <h4>En Trámite / Ejecución</h4>
+          <b id="kpiEjecucion">0</b>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="color:#34d399">📄</div>
+        <div class="kpi-info">
+          <h4>Resoluciones con PDF</h4>
+          <b id="kpiPdfs">0</b>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="color:#60a5fa">🏛️</div>
+        <div class="kpi-info">
+          <h4>Distritos Judiciales</h4>
+          <b>4 (Puno, Lima, etc.)</b>
+        </div>
+      </div>
+    </section>
+
+    <!-- LISTA DE EXPEDIENTES EXISTENTES -->
+    <section class="dash-card">
+      <div class="dash-card-hdr">
+        <h2>📚 Catálogo General de Expedientes</h2>
+        <div style="display:flex;gap:10px">
+          <button id="btnExportarJSON" class="btn-s" style="background:transparent;border-color:var(--pink-main);color:var(--pink-main)">
+            ⬇️ Exportar Base de Datos (JSON)
+          </button>
+          <button id="btnNuevoExp" class="btn">
+            ➕ Crear Nuevo Expediente
+          </button>
+        </div>
+      </div>
+      <div class="dash-card-body">
+        <div class="search-filter-box">
+          <input type="text" id="filtroTabla" class="search-filter-input" placeholder="🔍 Filtrar por código, materia, o partes...">
+          <small style="color:var(--txt-muted)">Los cambios guardados se sincronizan al instante con la consulta pública.</small>
+        </div>
+
+        <div style="overflow-x:auto">
+          <table class="tbl-admin">
+            <thead>
+              <tr>
+                <th>Código Judicial</th>
+                <th>Órgano Jurisdiccional</th>
+                <th>Materia</th>
+                <th>Estado Procesal</th>
+                <th>Partes Procesales</th>
+                <th>Actuaciones</th>
+                <th style="text-align:center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="adminTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- FORMULARIO DE CREACIÓN / EDICIÓN -->
+    <section class="dash-card" id="seccionEditor">
+      <div class="dash-card-hdr">
+        <h2 id="tituloEditor">✏️ Agregar / Editar Expediente Judicial</h2>
+        <span id="badgeModoEdicion" style="background:var(--pink-main);color:#ffffff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:800">MODO NUEVO</span>
+      </div>
+      <div class="dash-card-body">
+
+        <!-- PREVIEW DEL CÓDIGO JUDICIAL GENERADO -->
+        <div class="preview-code-box">
+          <div>
+            <div class="preview-code-lbl">Código Único del Expediente (Generado Automáticamente):</div>
+            <div class="preview-code-val" id="lblCodigoGen">00001-2025-0-2101-JP-FC-01</div>
+          </div>
+          <button type="button" id="btnCopiarCodigo" class="btn-outline" style="padding:6px 14px;font-size:12px">
+            📋 Copiar Código
+          </button>
+        </div>
+
+        <form id="formAdminExp" autocomplete="off">
+          <input type="hidden" id="adEditIndex" value="-1">
+
+          <!-- BLOQUE 1: ESTRUCTURA DEL CÓDIGO -->
+          <div class="form-section-title">1. Estructura Judicial y Código Único</div>
+          <div class="form-grid-3">
+            <div class="form-field">
+              <label>Secuencia (5 dígitos) *</label>
+              <input id="adSec" maxlength="5" inputmode="numeric" placeholder="00203" required>
+              <small>Ej: 00203</small>
+            </div>
+            <div class="form-field">
+              <label>Año (4 dígitos) *</label>
+              <input id="adAnio" maxlength="4" inputmode="numeric" placeholder="2025" required>
+              <small>Ej: 2025</small>
+            </div>
+            <div class="form-field">
+              <label>Órgano *</label>
+              <input id="adOrg" maxlength="1" placeholder="0" value="0" required>
+              <small>Generalmente 0</small>
+            </div>
+            <div class="form-field">
+              <label>Distrito Judicial *</label>
+              <select id="adDist" required></select>
+            </div>
+            <div class="form-field">
+              <label>Instancia *</label>
+              <select id="adInst" required></select>
+            </div>
+            <div class="form-field">
+              <label>Especialidad *</label>
+              <select id="adEsp" required></select>
+            </div>
+            <div class="form-field">
+              <label>Correlativo (2 dígitos) *</label>
+              <input id="adCorr" maxlength="2" placeholder="01" value="01" required>
+              <small>Ej: 01</small>
+            </div>
+          </div>
+
+          <!-- BLOQUE 2: DETALLES DEL PROCESO -->
+          <div class="form-section-title">2. Información del Órgano Jurisdiccional y Estado</div>
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label>Materia Judicial *</label>
+              <input id="adMateria" placeholder="Ej: ALIMENTOS" required>
+            </div>
+            <div class="form-field">
+              <label>Estado del Expediente *</label>
+              <select id="adEstado" required></select>
+            </div>
+            <div class="form-field">
+              <label>Órgano Jurisdiccional</label>
+              <input id="adOrgano" placeholder="Ej: 1ER JUZGADO DE PAZ LETRADO - SEDE PUNO">
+            </div>
+            <div class="form-field">
+              <label>Distrito Judicial (Texto descriptivo)</label>
+              <input id="adDistrito" placeholder="Ej: PUNO">
+            </div>
+            <div class="form-field">
+              <label>Juez / Jueza Responsable</label>
+              <input id="adJuez" placeholder="Ej: MARY ****** / ELVER ******">
+            </div>
+            <div class="form-field">
+              <label>Especialista Legal</label>
+              <input id="adEspecialista" placeholder="Ej: DIANA ******">
+            </div>
+            <div class="form-field">
+              <label>Tipo de Proceso</label>
+              <input id="adProceso" placeholder="Ej: PROCESO SIMPLIFICADO VIRTUAL DE ALIMENTOS">
+            </div>
+            <div class="form-field">
+              <label>Etapa Procesal</label>
+              <input id="adEtapa" placeholder="Ej: EJECUCION">
+            </div>
+            <div class="form-field">
+              <label>Fecha de Inicio</label>
+              <input id="adFechaIni" placeholder="DD/MM/AAAA">
+            </div>
+            <div class="form-field">
+              <label>Fecha de Conclusión (Opcional)</label>
+              <input id="adFechaFin" placeholder="DD/MM/AAAA">
+            </div>
+            <div class="form-field">
+              <label>Motivo de Conclusión</label>
+              <input id="adMotivo" placeholder="Ej: SENTENCIA CONSENTIDA">
+            </div>
+            <div class="form-field">
+              <label>Progreso (%)</label>
+              <input id="adProgreso" type="number" min="0" max="100" placeholder="95">
+            </div>
+          </div>
+          <div class="form-field" style="margin-bottom:14px">
+            <label>Sumilla Principal del Expediente</label>
+            <input id="adSumilla" placeholder="Ej: DEMANDA DE ALIMENTOS (S/ 1,000.00)">
+          </div>
+          <div class="form-field" style="margin-bottom:14px">
+            <label>Observaciones</label>
+            <input id="adObservacion" placeholder="Ej: Expediente con estado procesal final. Cuenta Banco Nacion 04-192-193325.">
+          </div>
+
+          <!-- BLOQUE 3: PARTES PROCESALES -->
+          <div class="form-section-title">3. Partes Procesales</div>
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label>Demandante (Rol y Nombre completo o razón social) *</label>
+              <div style="display:flex;gap:8px">
+                <input id="adParte1Rol" value="DEMANDANTE" style="width:130px;font-weight:700" readonly>
+                <input id="adParte1Nom" placeholder="Ej: Nombre Apellido" required>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Demandado (Rol y Nombre completo)</label>
+              <div style="display:flex;gap:8px">
+                <input id="adParte2Rol" value="DEMANDADO" style="width:130px;font-weight:700" readonly>
+                <input id="adParte2Nom" placeholder="Ej: Nombre Apellido">
+              </div>
+            </div>
+          </div>
+
+          <!-- BLOQUE 4: SEGUIMIENTO Y SUBIDA DE DOCUMENTOS PDF -->
+          <div class="form-section-title">
+            <span>4. Actuaciones Procesales y Subida de Archivos PDF</span>
+            <button type="button" id="btnAgregarFilaAct" class="btn-s" style="margin-left:auto;font-size:11.5px">
+              ➕ Agregar Actuación
+            </button>
+          </div>
+          <p style="font-size:12px;color:var(--txt-muted);margin:0 0 14px">
+            📁 <b>Opciones de PDF:</b> Puedes pulsar <b>📎 Subir PDF</b> para adjuntar directamente un archivo PDF desde tu PC, o pegar un enlace de Google Drive.
+          </p>
+
+          <div id="actuacionesContainer"></div>
+
+          <!-- BOTONES PRINCIPALES DEL FORMULARIO -->
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:30px;padding-top:20px;border-top:2px solid var(--border);flex-wrap:wrap;gap:12px">
+            <button type="button" id="btnResetForm" class="btn-outline">
+              🔄 Limpiar / Cancelar
+            </button>
+            <div style="display:flex;gap:12px">
+              <button type="submit" class="btn" id="btnGuardarExp">
+                💾 Guardar Expediente
+              </button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL VISOR PDF DE PRUEBA -->
+  <div id="modalPdf" class="pdf-modal-overlay" hidden>
+    <div class="pdf-modal-card">
+      <div class="pdf-modal-header">
+        <div class="pdf-modal-title-box">
+          <span class="pdf-icon">📄</span>
+          <span class="pdf-modal-title" id="pdfModalTitle">Visor de Documento</span>
+        </div>
+        <div class="pdf-modal-actions">
+          <a id="pdfModalLinkExt" href="#" target="_blank" rel="noopener" class="pdf-btn-action" title="Abrir en pestaña nueva">
+            ↗ Pestaña nueva
+          </a>
+          <button type="button" class="pdf-btn-close" id="btnCerrarPdf">✕ Cerrar</button>
+        </div>
+      </div>
+      <div class="pdf-modal-body">
+        <iframe id="pdfModalIframe" class="pdf-iframe" src="" allow="autoplay"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <script src="pdf_storage.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
