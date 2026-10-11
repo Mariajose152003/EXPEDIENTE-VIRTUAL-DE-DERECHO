@@ -158,6 +158,17 @@ fill($("fEsp"), ESP_OPTS, "--SELECCIONAR--");
 $("fAnio").innerHTML = "<option value=''>--SELECCIONAR--</option>" +
   Array.from({ length: 15 }, (_, i) => 2026 - i).map(a => `<option>${a}</option>`).join("");
 
+const codigoExpedientePrecargado = "00957-2022-0-2111-JR-LA-01";
+$("fDist").value = "PUNO";
+$("fInst").value = "JUZGADO DE TRABAJO";
+$("fEsp").value = "LABORAL";
+$("fAnio").value = "2022";
+$("fNum").value = "00957";
+$("fParte").value = "CHOQUE TICONA";
+codigoExpedientePrecargado.split("-").forEach((parte, i) => {
+  $("c" + (i + 1)).value = parte;
+});
+
 let modo = "filtros";
 document.querySelectorAll(".stab").forEach(t => t.onclick = () => {
   modo = t.dataset.t;
