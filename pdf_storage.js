@@ -108,12 +108,43 @@ async function obtenerPdfCache(url) {
   });
 }
 
+async function eliminarPdfCache(url) {
+  const db = await abrirSiceCacheDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction("pdfs", "readwrite");
+    tx.objectStore("pdfs").delete(url);
+    tx.oncomplete = () => { db.close(); resolve(); };
+    tx.onerror = () => { const error = tx.error; db.close(); reject(error); };
+    tx.onabort = () => { const error = tx.error; db.close(); reject(error); };
+  });
+}
+
+async function esPdfValido(blob) {
+  if (!blob || typeof blob.slice !== "function" || blob.size < 5) return false;
+  const header = new TextDecoder("latin1").decode(await blob.slice(0, 1024).arrayBuffer());
+  return /%PDF-\d\.\d/.test(header);
+}
+
 const CARPETA_PDFS_CACHE_KEY = "browser-folder-pdfs-v1";
 const CARPETA_EXPEDIENTES_CACHE_KEY = "browser-folder-expedientes-v1";
 
 async function obtenerPdfsCarpeta() {
   const cache = await obtenerCacheDatos(CARPETA_PDFS_CACHE_KEY);
-  return Array.isArray(cache?.value) ? cache.value : [];
+  const files = Array.isArray(cache?.value) ? cache.value : [];
+  const validFiles = [];
+  for (const file of files) {
+    const url = new URL(file.url, location.href).href;
+    const cachedPdf = await obtenerPdfCache(url);
+    if (cachedPdf?.blob && await esPdfValido(cachedPdf.blob)) {
+      validFiles.push(file);
+    } else {
+      if (cachedPdf) await eliminarPdfCache(url);
+    }
+  }
+  if (validFiles.length !== files.length) {
+    await guardarCacheDatos(CARPETA_PDFS_CACHE_KEY, validFiles);
+  }
+  return validFiles;
 }
 
 async function importarPdfsCarpeta(files, onProgress) {
@@ -144,6 +175,7 @@ async function importarPdfsCarpeta(files, onProgress) {
 
   let completed = 0;
   let failed = 0;
+  let invalid = 0;
   let quotaExceeded = false;
 
   for (const file of pdfFiles) {
@@ -157,11 +189,21 @@ async function importarPdfsCarpeta(files, onProgress) {
     const url = path.split("/").map(encodeURIComponent).join("/");
     const entry = { name: file.name, path, url, size: file.size, lastModified: String(file.lastModified) };
 
+    if (!await esPdfValido(file)) {
+      porUrl.delete(url);
+      await eliminarPdfCache(new URL(url, location.href).href);
+      invalid++;
+      failed++;
+      completed++;
+      onProgress?.({ completed, total: pdfFiles.length, failed, cached: porUrl.size });
+      continue;
+    }
     try {
       if (quotaExceeded) throw new DOMException("Se agotó el espacio de almacenamiento.", "QuotaExceededError");
       const cacheKey = new URL(url, location.href).href;
       const existing = await obtenerPdfCache(cacheKey);
-      if (existing?.lastModified !== entry.lastModified || existing.size !== entry.size) {
+      if (existing?.lastModified !== entry.lastModified || existing.size !== entry.size ||
+          !await esPdfValido(existing.blob)) {
         await guardarPdfCache(cacheKey, file, entry.lastModified);
       }
       porUrl.set(url, entry);
@@ -177,7 +219,7 @@ async function importarPdfsCarpeta(files, onProgress) {
 
   const guardados = Array.from(porUrl.values());
   await guardarCacheDatos(CARPETA_PDFS_CACHE_KEY, guardados);
-  return { completed, total: pdfFiles.length, failed, cached: guardados.length };
+  return { completed, total: pdfFiles.length, failed, invalid, cached: guardados.length };
 }
 
 async function olvidarDatosCarpeta() {
@@ -220,7 +262,8 @@ async function precargarPDFs(files, onProgress) {
       if (quotaExceeded) throw new DOMException("Se agotó el espacio de almacenamiento.", "QuotaExceededError");
 
       const existing = await obtenerPdfCache(url.href);
-      if (existing?.lastModified === file.lastModified && existing.size === file.size) {
+      if (existing?.lastModified === file.lastModified && existing.size === file.size &&
+          await esPdfValido(existing.blob)) {
         cached++;
       } else {
         const response = await fetch(url.href, { cache: "no-cache" });
@@ -228,7 +271,9 @@ async function precargarPDFs(files, onProgress) {
         if (response.headers.get("Content-Type")?.split(";")[0] !== "application/pdf") {
           throw new Error("El archivo recibido no es un PDF.");
         }
-        await guardarPdfCache(url.href, await response.blob(), file.lastModified);
+        const blob = await response.blob();
+        if (!await esPdfValido(blob)) throw new Error("El archivo recibido no contiene un PDF válido.");
+        await guardarPdfCache(url.href, blob, file.lastModified);
         cached++;
       }
     } catch (error) {
@@ -250,6 +295,8 @@ window.guardarCacheDatos = guardarCacheDatos;
 window.obtenerCacheDatos = obtenerCacheDatos;
 window.guardarPdfCache = guardarPdfCache;
 window.obtenerPdfCache = obtenerPdfCache;
+window.eliminarPdfCache = eliminarPdfCache;
+window.esPdfValido = esPdfValido;
 window.precargarPDFs = precargarPDFs;
 window.obtenerPdfsCarpeta = obtenerPdfsCarpeta;
 window.importarPdfsCarpeta = importarPdfsCarpeta;

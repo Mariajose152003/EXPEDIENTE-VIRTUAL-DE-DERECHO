@@ -643,12 +643,21 @@ async function resolverUrl(url) {
     let cached = null;
     try {
       cached = window.obtenerPdfCache ? await window.obtenerPdfCache(fileUrl) : null;
-      if (cached?.blob && (!indexedFile || cached.lastModified === indexedFile.lastModified)) {
+      if (cached?.blob && (!indexedFile || cached.lastModified === indexedFile.lastModified) &&
+          await window.esPdfValido(cached.blob)) {
         const objectUrl = URL.createObjectURL(cached.blob);
         return { view: objectUrl, download: objectUrl, objectUrl };
       }
     } catch (error) {
       console.error("No se pudo leer el PDF guardado en caché:", error);
+    }
+    if (cached?.blob && !await window.esPdfValido(cached.blob)) {
+      try {
+        await window.eliminarPdfCache(fileUrl);
+        cached = null;
+      } catch (error) {
+        console.error("No se pudo eliminar un archivo inválido de la caché:", error);
+      }
     }
 
     try {
@@ -658,6 +667,7 @@ async function resolverUrl(url) {
         throw new Error("El archivo recibido no es un PDF.");
       }
       const blob = await response.blob();
+      if (!await window.esPdfValido(blob)) throw new Error("El archivo recibido no contiene un PDF válido.");
       if (window.guardarPdfCache) {
         try {
           await window.guardarPdfCache(fileUrl, blob, indexedFile?.lastModified || "");
@@ -668,7 +678,7 @@ async function resolverUrl(url) {
       const objectUrl = URL.createObjectURL(blob);
       return { view: objectUrl, download: objectUrl, objectUrl };
     } catch (error) {
-      if (cached?.blob) {
+      if (cached?.blob && await window.esPdfValido(cached.blob)) {
         console.warn("No se pudo actualizar el PDF; se abrirá la copia guardada en caché.", error);
         const objectUrl = URL.createObjectURL(cached.blob);
         return { view: objectUrl, download: objectUrl, objectUrl };
@@ -739,12 +749,16 @@ function inicializarCargaCarpeta() {
         }
         expedienteCount = await window.agregarExpedientesPrivados(data);
       }
-      const failures = pdfResult.failed ? `; ${pdfResult.failed} PDF no se pudieron guardar` : "";
+      const failures = [
+        pdfResult.invalid ? `${pdfResult.invalid} archivo(s) no eran PDF válidos y se omitieron` : "",
+        pdfResult.failed > pdfResult.invalid ? `${pdfResult.failed - pdfResult.invalid} PDF no se pudieron guardar` : ""
+      ].filter(Boolean).join("; ");
+      const failureMessage = failures ? `; ${failures}` : "";
       if (expedienteCount) {
-        status.textContent = `${pdfResult.cached} PDF disponibles en este navegador; ${expedienteCount} expediente(s) cargados${failures}.`;
+        status.textContent = `${pdfResult.cached} PDF disponibles en este navegador; ${expedienteCount} expediente(s) cargados${failureMessage}.`;
         mostrarResultados(DB_EXPS);
       } else {
-        status.textContent = `${pdfResult.cached} PDF disponibles en este navegador${failures}. No se encontró data/expedientes.json: selecciona la carpeta raíz del proyecto para mostrar el expediente.`;
+        status.textContent = `${pdfResult.cached} PDF disponibles en este navegador${failureMessage}. No se encontró data/expedientes.json: selecciona la carpeta raíz del proyecto para mostrar el expediente.`;
         mostrarVista("busqueda");
       }
       await renderPdfsCarpeta();
