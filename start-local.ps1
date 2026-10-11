@@ -5,16 +5,30 @@ $prefix = "http://localhost:$port/"
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add($prefix)
 
+function Test-PdfFile([string]$path) {
+  $stream = [IO.File]::OpenRead($path)
+  try {
+    $buffer = New-Object byte[] 1024
+    $read = $stream.Read($buffer, 0, $buffer.Length)
+    $header = [Text.Encoding]::ASCII.GetString($buffer, 0, $read)
+    return $header -match '%PDF-\d\.\d'
+  }
+  finally {
+    $stream.Dispose()
+  }
+}
+
 function Get-PdfIndex {
   $pdfRoot = Join-Path $root "expedientes"
   if (-not (Test-Path -LiteralPath $pdfRoot -PathType Container)) {
     throw "No existe la carpeta de documentos: $pdfRoot"
   }
 
-  $files = @(Get-ChildItem -LiteralPath $pdfRoot -File -Recurse -Filter "*.pdf" -ErrorAction Stop)
-  $signature = ($files | ForEach-Object {
+  $allFiles = @(Get-ChildItem -LiteralPath $pdfRoot -File -Recurse -Filter "*.pdf" -ErrorAction Stop)
+  $files = @($allFiles | Where-Object { Test-PdfFile $_.FullName })
+  $signature = "pdf-signature-v1`n" + (($allFiles | ForEach-Object {
     "$($_.FullName)|$($_.Length)|$($_.LastWriteTimeUtc.Ticks)"
-  }) -join "`n"
+  }) -join "`n")
   $sha256 = [Security.Cryptography.SHA256]::Create()
   $hashBytes = $sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($signature))
   $sha256.Dispose()
@@ -32,6 +46,11 @@ function Get-PdfIndex {
     catch {
       [Console]::Error.WriteLine("La caché del índice PDF está dañada; se regenerará: $($_.Exception.Message)")
     }
+  }
+
+  $invalidCount = $allFiles.Count - $files.Count
+  if ($invalidCount) {
+    Write-Warning "$invalidCount archivo(s) con extensión PDF no tienen una firma PDF válida y se omitieron."
   }
 
   $entries = @($files | Sort-Object FullName | ForEach-Object {
