@@ -1,1 +1,395 @@
-[]
+[
+  {
+    "codigo": "00957-2022-0-2111-JR-LA-01",
+    "expedienteCompletoUrl": "expedientes/1 DEMANDA Y ANEXOS 1-658_261010_092318.pdf",
+    "reporte": {
+      "numero": "00957-2022-0-2111-JR-LA-01",
+      "distritoJudicial": "PUNO",
+      "organoJurisdiccional": "Juzgado de Trabajo - Zona Norte - Sede Juliaca",
+      "sede": "Plaza Zarumilla S/N - Jr. Pumacahua Nº 223 - Juliaca",
+      "juez": "HUAMAN ROMERO GONZALO VICTOR / ALE POLAR RAUL",
+      "especialista": "LEA CALDERON ARAPA / CHAMBI RODRIGUEZ JOHAN MAX",
+      "especialidad": "LABORAL",
+      "subespecialidad": "LABORAL (NLPT)",
+      "proceso": "ORDINARIO LABORAL",
+      "materia": "DESNATURALIZACIÓN DE CONTRATO",
+      "estado": "CONCLUIDO",
+      "etapaProcesal": "SENTENCIA FIRME (ARCHIVO DEFINITIVO)",
+      "fechaInicio": "02/09/2022",
+      "cuantia": "S/ 0.00 (INDETERMINADA)",
+      "ubicacion": "ARCHIVO MODULAR / EN RESERVA",
+      "sumilla": "DEMANDA LABORAL SOBRE DESNATURALIZACIÓN DE CONTRATOS DE TERCERIZACIÓN Y REPOSICIÓN POR DESPIDO INCAUSADO"
+    },
+    "resumen": "Este es un proceso laboral de desnaturalización de contrato de tercerización laboral y reposición, donde un extrabajador demanda a la empresa principal (Electro Puno S.A.A.) y a diversas empresas contratistas (Consorcio Galcas Sur, Fegal S.R.L., Galcas Contratistas Generales S.A.C. y Voltec Contratistas Generales S.R.L.), alegando que prestó servicios personales y subordinados durante varios años (desde 2016) bajo la apariencia de contratos de tercerización y recibos por honorarios, configurándose un despido incausado. El proceso inició con una demanda declarada inadmisible, luego subsanada, admitida a trámite, con el desarrollo de la audiencia de conciliación y la audiencia de juzgamiento. En la Sentencia N.° 59-2023-LA (Resolución N.° 04), el Juzgado Especializado de Trabajo declaró infundada la excepción de caducidad e infundada en todos sus extremos la demanda, disponiendo el archivo definitivo del proceso sin costas ni costos.",
+    "situacionResolutiva": {
+      "titulo": "SENTENCIA INFUNDADA",
+      "detalle": "En la Sentencia N.° 59-2023-LA (Resolución N.° 04), el Juzgado Especializado de Trabajo declaró infundada la excepción de caducidad e infundada en todos sus extremos la demanda, estableciendo que el demandante no logró acreditar haber estado bajo la subordinación directa de la empresa principal Electro Puno S.A.A. ni demostró la desnaturalización de los contratos de tercerización comercial, disponiendo el archivo definitivo del proceso sin costas ni costos."
+    },
+    "partes": [
+      {
+        "tipo": "DEMANDANTE",
+        "nombres": "CHOQUE TICONA, WILSON RONALD",
+        "tipoPersona": "NATURAL",
+        "representante": "Yhon Cristhian Barrionuevo Monzón (Abogado Defensor, Reg. CAP N° 6994)"
+      },
+      {
+        "tipo": "DEMANDADO",
+        "nombres": "EMPRESA REGIONAL DE SERVICIO PUBLICO DE ELECTRICIDAD DE PUNO S.A.A. (ELECTRO PUNO S.A.A.)",
+        "tipoPersona": "JURÍDICA",
+        "representante": "Abg. Priscilla Marisha Barrientos Tejada (Abogada Apoderada, Reg. CAA N° 6255)"
+      },
+      {
+        "tipo": "DEMANDADO",
+        "nombres": "CONSORCIO GALCAS SUR",
+        "tipoPersona": "JURÍDICA",
+        "representante": "Representante Legal no apersonado (Declarado rebelde / Inasistente)"
+      },
+      {
+        "tipo": "DEMANDADO",
+        "nombres": "GALCAS CONTRATISTAS GENERALES S.A.C.",
+        "tipoPersona": "JURÍDICA",
+        "representante": "Representante Legal no apersonado"
+      },
+      {
+        "tipo": "DEMANDADO",
+        "nombres": "FEGAL SOCIEDAD COMERCIAL DE RESPONSABILIDAD LIMITADA (FEGAL S.R.L.)",
+        "tipoPersona": "JURÍDICA",
+        "representante": "Representante Legal no apersonado"
+      },
+      {
+        "tipo": "DEMANDADO",
+        "nombres": "VOLTEC CONTRATISTAS GENERALES SOCIEDAD COMERCIAL DE RESPONSABILIDAD LIMITADA (VOLTEC S.R.L.)",
+        "tipoPersona": "JURÍDICA",
+        "representante": "Representante Legal no apersonado"
+      }
+    ],
+    "progreso": {
+      "porcentaje": 80,
+      "mensaje": "El proceso cuenta con Sentencia N.° 59-2023-LA emitida que declara infundada la demanda laboral.",
+      "etapas": [
+        {
+          "nombre": "DEMANDA",
+          "desc": "02/09/2022 - Presentación de la demanda laboral sobre desnaturalización y reposición.",
+          "estado": "done",
+          "fecha": "02/09/2022"
+        },
+        {
+          "nombre": "CALIFICACIÓN",
+          "desc": "20/09/2022 - Calificación y auto admisorio (Res. N° 02) tras subsanación de observaciones.",
+          "estado": "done",
+          "fecha": "20/09/2022"
+        },
+        {
+          "nombre": "CONTESTACIÓN",
+          "desc": "22/11/2022 - Contestación de demanda por Electro Puno S.A.A. con excepción de caducidad.",
+          "estado": "done",
+          "fecha": "22/11/2022"
+        },
+        {
+          "nombre": "AUDIENCIA",
+          "desc": "10/05/2023 - Audiencia de juzgamiento reanudada con confrontación de posiciones y alegatos.",
+          "estado": "done",
+          "fecha": "10/05/2023"
+        },
+        {
+          "nombre": "SENTENCIA 1RA INST.",
+          "desc": "12/05/2023 - Sentencia N.° 59-2023-LA (Res. N° 04) que declara infundada la excepción y la demanda.",
+          "estado": "current",
+          "fecha": "12/05/2023"
+        },
+        {
+          "nombre": "APELACIÓN",
+          "desc": "Plazo de ley para recurso impugnatorio de apelación.",
+          "estado": "pending",
+          "fecha": ""
+        },
+        {
+          "nombre": "SALA SUPERIOR",
+          "desc": "Elevación a Sala Laboral de la Corte Superior de Justicia de Puno.",
+          "estado": "pending",
+          "fecha": ""
+        }
+      ],
+      "hitos": [
+        {
+          "fecha": "02/09/2022",
+          "descripcion": "DEMANDA: Presentación de la demanda laboral"
+        },
+        {
+          "fecha": "05/09/2022",
+          "descripcion": "INADMISIBILIDAD: Resolución N° 01 - observaciones de forma"
+        },
+        {
+          "fecha": "15/09/2022",
+          "descripcion": "SUBSANACIÓN: Presentación de escrito y anexos subsanando observaciones"
+        },
+        {
+          "fecha": "20/09/2022",
+          "descripcion": "ADMISIÓN: Resolución N° 02 - admisión y citación a conciliación"
+        },
+        {
+          "fecha": "30/09/2022",
+          "descripcion": "APERSONAMIENTO: Apersonamiento de Electro Puno y pago de tasas"
+        },
+        {
+          "fecha": "22/11/2022",
+          "descripcion": "CONTESTACIÓN: Contestación de demanda de Electro Puno con excepción de caducidad"
+        },
+        {
+          "fecha": "22/11/2022",
+          "descripcion": "AUDIENCIA DE CONCILIACIÓN: Fracasada por inasistencia de contratistas"
+        },
+        {
+          "fecha": "02/12/2022",
+          "descripcion": "OFICIO: Requerimiento de exhibición documental a Electro Puno S.A.A."
+        },
+        {
+          "fecha": "16/12/2022",
+          "descripcion": "EXHIBICIONES: Presentación de medios probatorios por Electro Puno"
+        },
+        {
+          "fecha": "02/01/2023",
+          "descripcion": "SOLICITUD: Copias certificadas solicitadas por el demandante"
+        },
+        {
+          "fecha": "04/01/2023",
+          "descripcion": "RESOLUCIÓN N° 03: Expedición de copias y asunción del Juez Raúl Ale Polar"
+        },
+        {
+          "fecha": "16/03/2023",
+          "descripcion": "AUDIENCIA DE JUZGAMIENTO: Suspendida por falta de cédulas físicas"
+        },
+        {
+          "fecha": "10/05/2023",
+          "descripcion": "AUDIENCIA DE JUZGAMIENTO: Reanudada, actuación probatoria y alegatos"
+        },
+        {
+          "fecha": "12/05/2023",
+          "descripcion": "SENTENCIA N° 59-2023-LA: Declara infundada la excepción y la demanda"
+        }
+      ]
+    },
+    "actuaciones": [
+      {
+        "numero": 1,
+        "fecha": "02/09/2022",
+        "acto": "INTERPONE DEMANDA LABORAL",
+        "sumilla": "El demandante interpone formalmente una demanda laboral sobre desnaturalización de contrato de tercerización laboral y reposición contra Electro Puno S.A.A. y otras empresas contratistas.",
+        "responsable": "MESA DE PARTES / LEA CALDERON ARAPA",
+        "pdfUrl": "expedientes/1 DEMANDA Y ANEXOS 1-658_261010_092318.pdf",
+        "docs": [
+          {
+            "label": "Demanda y Anexos (Fojas 1-658)",
+            "url": "expedientes/1 DEMANDA Y ANEXOS 1-658_261010_092318.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 2,
+        "fecha": "05/09/2022",
+        "acto": "INADMISIBILIDAD DE DEMANDA (RESOLUCIÓN N° 01)",
+        "sumilla": "El Juzgado de Trabajo declara inadmisible la demanda debido a que se advirtieron omisiones de carácter subsanable respecto a los anexos, otorgando un plazo de cinco días para corregirlas bajo apercibimiento de ordenar el archivo del expediente.",
+        "responsable": "HUAMAN ROMERO GONZALO VICTOR / LEA CALDERON ARAPA",
+        "pdfUrl": "expedientes/2 AUTO QUE DECLARA INADMISIBLE LA DEMANDA.pdf",
+        "docs": [
+          {
+            "label": "Resolución N° 01 (Auto Inadmisible)",
+            "url": "expedientes/2 AUTO QUE DECLARA INADMISIBLE LA DEMANDA.pdf"
+          },
+          {
+            "label": "Cédula de Notificación",
+            "url": "expedientes/2.1 AUTO QUE DECLARA INADMISIBLE LA DEMANDA.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 3,
+        "fecha": "15/09/2022",
+        "acto": "SUBSANACIÓN DE OBSERVACIONES",
+        "sumilla": "El demandante presenta escrito subsanando las observaciones advertidas por el juzgado, precisando los periodos correctos de los registros de capacitación y adjuntando medio digital con videos y fotografías probatorias.",
+        "responsable": "LEA CALDERON ARAPA",
+        "pdfUrl": "expedientes/3 SUBSANA OBSERVACIONES DE LA DEMANDA 661-664_261010_115347.pdf",
+        "docs": [
+          {
+            "label": "Escrito de Subsanación (Fojas 661-664)",
+            "url": "expedientes/3 SUBSANA OBSERVACIONES DE LA DEMANDA 661-664_261010_115347.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 4,
+        "fecha": "20/09/2022",
+        "acto": "ADMISIÓN DE DEMANDA (RESOLUCIÓN N° 02)",
+        "sumilla": "El órgano jurisdiccional califica positivamente la demanda tras verificar el cumplimiento de los requisitos legales, admitiéndola a trámite en la vía del proceso ordinario laboral y citando a las partes a audiencia de conciliación virtual para el 22/11/2022.",
+        "responsable": "HUAMAN ROMERO GONZALO VICTOR / LEA CALDERON ARAPA",
+        "pdfUrl": "expedientes/4 AUTO QUE ADMITE DEMANDA RES 2 957-2022-665-668_261010_115630.pdf",
+        "docs": [
+          {
+            "label": "Resolución N° 02 (Auto Admisorio)",
+            "url": "expedientes/4 AUTO QUE ADMITE DEMANDA RES 2 957-2022-665-668_261010_115630.pdf"
+          },
+          {
+            "label": "Cédula de Notificación N° 21043-2022",
+            "url": "expedientes/4.4. NOTIFICACIÓN DE RES 2 669 - 672_261010_120203.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 5,
+        "fecha": "30/09/2022",
+        "acto": "APERSONAMIENTO Y CUMPLO REQUERIMIENTO",
+        "sumilla": "La empresa principal Electro Puno S.A.A., a través de su apoderada Abg. Priscilla Barrientos Tejada, se apersona formalmente al proceso, señala domicilio procesal, casilla electrónica N° 6255 y proporciona datos de contacto conforme al requerimiento judicial.",
+        "responsable": "CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/5 APERSONAMIENTO Y CUMPLO REQUERIMIENTO 674-682_261010_120756.pdf",
+        "docs": [
+          {
+            "label": "Escrito de Apersonamiento (Fojas 674-682)",
+            "url": "expedientes/5 APERSONAMIENTO Y CUMPLO REQUERIMIENTO 674-682_261010_120756.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 6,
+        "fecha": "22/11/2022",
+        "acto": "CONTESTACIÓN DE DEMANDA Y EXCEPCIÓN DE CADUCIDAD",
+        "sumilla": "La empresa principal Electro Puno S.A.A. contesta formalmente la demanda solicitando que sea declarada infundada en todos sus extremos y deduce excepción de caducidad, sosteniendo la validez de los contratos de tercerización y que el demandante nunca estuvo subordinado.",
+        "responsable": "CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/6 CONTESTACION DE LA DEMANDA 683-692_261010_122209.pdf",
+        "docs": [
+          {
+            "label": "Contestación de Demanda (Fojas 683-692)",
+            "url": "expedientes/6 CONTESTACION DE LA DEMANDA 683-692_261010_122209.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 7,
+        "fecha": "22/11/2022",
+        "acto": "ACTA DE REGISTRO DE AUDIENCIA DE CONCILIACIÓN",
+        "sumilla": "Se lleva a cabo la audiencia virtual ante el Juez Wilber Paredes Jaén con la presencia del demandante y Electro Puno S.A.A. (dejándose constancia de la inasistencia de las demás empresas codemandadas). Al no haber acuerdo, se da por fracasada la conciliación y se fijan las pretensiones materia de juicio.",
+        "responsable": "WILBER PAREDES JAEN / MONICA KAREN ROQUE QUISPE",
+        "pdfUrl": "expedientes/7 ACTA DE REGISTRO DE AUDIENCIA DE CONCILIACION 69_261010_122610.pdf",
+        "docs": [
+          {
+            "label": "Acta de Audiencia de Conciliación",
+            "url": "expedientes/7 ACTA DE REGISTRO DE AUDIENCIA DE CONCILIACION 69_261010_122610.pdf"
+          },
+          {
+            "label": "Cédula de Notificación N° 28369-2022",
+            "url": "expedientes/7.1 ACTA DE REGISTRO DE AUDIENCIA DE CONCILIACION _261010_122706.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 8,
+        "fecha": "02/12/2022",
+        "acto": "REQUERIMIENTO DE EXHIBICIÓN DOCUMENTAL (OFICIO N° 3262-2022)",
+        "sumilla": "El juzgado libra el Oficio N° 3262-2022-JET-MCL.ZN-CSJPU-PJ requiriendo al Gerente General de Electro Puno S.A.A. para que en el plazo de cinco días remita la totalidad de los documentos propuestos como medios probatorios y contratos suscritos.",
+        "responsable": "JUZGADO ESPECIALIZADO LABORAL / CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/8 Oficio de Requerimiento de Exhibición de Documen_261010_122812.pdf",
+        "docs": [
+          {
+            "label": "Oficio N° 3262-2022-JET Requerimiento",
+            "url": "expedientes/8 Oficio de Requerimiento de Exhibición de Documen_261010_122812.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 9,
+        "fecha": "16/12/2022",
+        "acto": "EXHIBICIONES DOCUMENTALES",
+        "sumilla": "La codemandada Electro Puno S.A.A. cumple con absolver el requerimiento presentando exhibiciones de documentos mediante enlace digital de almacenamiento en la nube, precisando antecedentes archivísticos.",
+        "responsable": "CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/9 EXHIBICIONES 699-703_261010_123056.pdf",
+        "docs": [
+          {
+            "label": "Escrito de Exhibiciones (Fojas 699-703)",
+            "url": "expedientes/9 EXHIBICIONES 699-703_261010_123056.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 10,
+        "fecha": "02/01/2023",
+        "acto": "SOLICITUD DE COPIAS CERTIFICADAS Y OTROS",
+        "sumilla": "La parte demandante presenta escrito solicitando al juzgado la expedición y entrega de copias certificadas de los actuados principales (demanda, anexos y auto admisorio) para los fines pertinentes de su derecho.",
+        "responsable": "CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/10 Solicito copias certificadas y otros 704-706_261010_123325.pdf",
+        "docs": [
+          {
+            "label": "Escrito de Solicitud de Copias (Fojas 704-706)",
+            "url": "expedientes/10 Solicito copias certificadas y otros 704-706_261010_123325.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 11,
+        "fecha": "04/01/2023",
+        "acto": "EXPEDICIÓN DE COPIAS Y ASUNCIÓN DE COMPETENCIA (RESOLUCIÓN N° 03)",
+        "sumilla": "El juzgado resuelve proveer la solicitud de copias certificadas disponiendo su expedición, y pone en conocimiento de las partes la asunción de competencia del despacho por parte del magistrado Raúl Ale Polar por disposición superior.",
+        "responsable": "ALE POLAR RAUL / CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/11 Resolución 3 707-719_261010_123405.pdf",
+        "docs": [
+          {
+            "label": "Resolución N° 03 (Asunción de Competencia)",
+            "url": "expedientes/11 Resolución 3 707-719_261010_123405.pdf"
+          },
+          {
+            "label": "Notificación y Cédulas N° 130-2023",
+            "url": "expedientes/11-1 Resolución 3 707-719_261010_124343.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 12,
+        "fecha": "16/03/2023",
+        "acto": "AUDIENCIA DE JUZGAMIENTO (SUSPENDIDA)",
+        "sumilla": "Al instalarse la audiencia, el juez advierte que no obran en el expediente físico las cédulas de notificación a las co-demandadas contratistas, por lo que dispone la suspensión y reprogramación de la diligencia, formulando llamado de atención al personal de trámite.",
+        "responsable": "RAUL ALE POLAR / MONICA KAREN ROQUE QUISPE",
+        "pdfUrl": "expedientes/12 ACTA DE REGISTRO DE AUDIENCIA DE JUZGAMIENTO 16_261010_124542.pdf",
+        "docs": [
+          {
+            "label": "Acta de Juzgamiento Suspendida",
+            "url": "expedientes/12 ACTA DE REGISTRO DE AUDIENCIA DE JUZGAMIENTO 16_261010_124542.pdf"
+          },
+          {
+            "label": "Cédula de Notificación N° 4635-2023",
+            "url": "expedientes/12.1 ACTA DE REGISTRO DE AUDIENCIA DE JUZGAMIENTO _261010_135915.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 13,
+        "fecha": "10/05/2023",
+        "acto": "AUDIENCIA DE JUZGAMIENTO (REANUDADA Y CONCLUIDA)",
+        "sumilla": "Se lleva a cabo la reanudación y conclusión de la audiencia de juzgamiento con la confrontación de posiciones, fijación de puntos controvertidos, admisión y actuación de pruebas (exhibiciones digitales) y recepción de alegatos finales de las partes.",
+        "responsable": "RAUL ALE POLAR / MONICA KAREN ROQUE QUISPE",
+        "pdfUrl": "expedientes/13 ACTA DE REGISTRO DE AUDIENCIA DE JUZGAMIENTO 10_261010_124920.pdf",
+        "docs": [
+          {
+            "label": "Acta de Juzgamiento Reanudada y Concluida",
+            "url": "expedientes/13 ACTA DE REGISTRO DE AUDIENCIA DE JUZGAMIENTO 10_261010_124920.pdf"
+          }
+        ]
+      },
+      {
+        "numero": 14,
+        "fecha": "12/05/2023",
+        "acto": "SENTENCIA N° 59-2023-LA (RESOLUCIÓN N° 04)",
+        "sumilla": "El Juzgado Especializado de Trabajo declara infundada la excepción de caducidad deducida por Electro Puno S.A.A. e INFUNDADA en todos sus extremos la demanda principal de desnaturalización y reposición, al no acreditarse subordinación directa con la principal ni desnaturalización de la tercerización. Ordena el archivo definitivo sin costas ni costos.",
+        "responsable": "RAUL ALE POLAR / CHAMBI RODRIGUEZ JOHAN MAX",
+        "pdfUrl": "expedientes/14 SENTENCIA N° 59 – 2023 – LA res 4 737-754_261010_125512.pdf",
+        "docs": [
+          {
+            "label": "Sentencia N° 59-2023-LA (Fojas 737-754)",
+            "url": "expedientes/14 SENTENCIA N° 59 – 2023 – LA res 4 737-754_261010_125512.pdf"
+          },
+          {
+            "label": "Cédula de Notificación N° 9194-2023",
+            "url": "expedientes/14.1 SENTENCIA N° 59 – 2023 – LA res 4 737-754_261010_125930.pdf"
+          }
+        ]
+      }
+    ]
+  }
+]
