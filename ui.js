@@ -711,11 +711,13 @@ async function renderPdfsCarpeta() {
 function inicializarCargaCarpeta() {
   const input = $("browserFolderInput");
   const selectButton = $("browserFolderButton");
+  const resultsSelectButton = $("btnCargarCarpetaResultados");
   const clearButton = $("browserFolderClear");
   const status = $("browserFolderStatus");
   if (!input || !selectButton || !clearButton || !status) return;
 
   selectButton.onclick = () => input.click();
+  if (resultsSelectButton) resultsSelectButton.onclick = () => input.click();
   input.onchange = async () => {
     const files = Array.from(input.files || []);
     if (!files.length) return;
@@ -738,8 +740,13 @@ function inicializarCargaCarpeta() {
         expedienteCount = await window.agregarExpedientesPrivados(data);
       }
       const failures = pdfResult.failed ? `; ${pdfResult.failed} PDF no se pudieron guardar` : "";
-      const records = expedienteCount ? `; ${expedienteCount} expediente(s) cargados` : "";
-      status.textContent = `${pdfResult.cached} PDF disponibles en este navegador${records}${failures}.`;
+      if (expedienteCount) {
+        status.textContent = `${pdfResult.cached} PDF disponibles en este navegador; ${expedienteCount} expediente(s) cargados${failures}.`;
+        mostrarResultados(DB_EXPS);
+      } else {
+        status.textContent = `${pdfResult.cached} PDF disponibles en este navegador${failures}. No se encontró data/expedientes.json: selecciona la carpeta raíz del proyecto para mostrar el expediente.`;
+        mostrarVista("busqueda");
+      }
       await renderPdfsCarpeta();
     } catch (error) {
       console.error("No se pudieron cargar los archivos locales:", error);

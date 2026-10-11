@@ -174,7 +174,7 @@
       <section class="browser-files" aria-labelledby="browser-files-title">
         <div>
           <h3 id="browser-files-title">Abrir expedientes privados desde este equipo</h3>
-          <p>GitHub Pages no puede leer carpetas de tu computadora por sí solo. Selecciona la carpeta del proyecto o la carpeta <b>expedientes</b> para consultar sus PDF aquí.</p>
+          <p>Para que aparezca la ficha laboral, selecciona la carpeta raíz del proyecto, la que contiene <b>data</b> y <b>expedientes</b>. Si eliges solo <b>expedientes</b>, se cargarán los PDF, pero no el registro del expediente.</p>
           <p class="browser-files-privacy">Los archivos y datos se leen y guardan solo en este navegador; no se envían ni se publican.</p>
         </div>
         <div class="browser-files-actions">
@@ -260,7 +260,10 @@
       <div class="res-card">
         <div class="res-head">
           <div class="res-head-l"><span class="res-ico"><i class="fa-solid fa-list-check"></i></span><h2>Resultados de la Consulta</h2></div>
-          <button class="btn-ghost" id="btnNuevaBusq">Nueva Búsqueda</button>
+          <div class="browser-files-actions">
+            <button class="btn-full-ver" id="btnCargarCarpetaResultados" type="button"><i class="fa-solid fa-folder-open"></i> Cargar mi expediente</button>
+            <button class="btn-ghost" id="btnNuevaBusq">Nueva Búsqueda</button>
+          </div>
         </div>
         <div class="res-sub">
           <p id="res-count">Se encontraron 0 expediente(s) vinculados a la búsqueda</p>
