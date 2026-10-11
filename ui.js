@@ -209,15 +209,23 @@ $("formBusq").onsubmit = e => {
     const an = $("fAnio").value;
 
     f = x => {
-      // 1. Número de Expediente (acepta 00957 o 957)
-      const matchNum = x.sec === num || parseInt(x.sec, 10) === parseInt(numVal, 10);
+      const codigo = String(x.codigo || "").split("-");
+      const secuencia = x.sec || codigo[0] || "";
+      const anioExpediente = x.anio || codigo[1] || "";
+      const distrito = x.dist || codigo[3] || "";
+      const instanciaCodigo = x.inst || codigo[4] || "";
+      const instancia = ({ JR: "JUZGADO ESPECIALIZADO", JP: "JUZGADO DE PAZ LETRADO", SP: "SALA SUPERIOR" })[instanciaCodigo] || instanciaCodigo;
+      const especialidad = x.esp || ({ LA: "LABORAL", CI: "CIVIL", PE: "PENAL", FC: "FAMILIA CIVIL", CO: "COMERCIAL" })[codigo[5]] || "";
+
+      // 1. Número de Expediente (acepta el número con o sin ceros iniciales)
+      const matchNum = secuencia === num || parseInt(secuencia, 10) === parseInt(numVal, 10);
       if (!matchNum) return false;
 
       // 2. Distrito Judicial (Puno cubre 2101 y 2111)
       if (d) {
         if (d === "PUNO") {
-          if (x.dist !== "2101" && x.dist !== "2111" && !norm(x.reporte?.distritoJudicial).includes("PUNO")) return false;
-        } else if (x.dist !== DIST[d] && !norm(x.reporte?.distritoJudicial).includes(norm(d))) {
+          if (distrito !== "2101" && distrito !== "2111" && !norm(x.reporte?.distritoJudicial).includes("PUNO")) return false;
+        } else if (distrito !== DIST[d] && !norm(x.reporte?.distritoJudicial).includes(norm(d))) {
           return false;
         }
       }
@@ -225,36 +233,36 @@ $("formBusq").onsubmit = e => {
       // 3. Instancia
       if (ins) {
         const insNorm = norm(ins);
-        const xInst = norm(x.inst);
+        const xInst = norm(instancia);
         const xOrg = norm(x.reporte?.organoJurisdiccional || "");
         let mInst = false;
         if (xInst === insNorm || xOrg.includes(insNorm)) mInst = true;
-        else if (insNorm.includes("TRABAJO") && (xOrg.includes("TRABAJO") || x.esp === "LA")) mInst = true;
-        else if (insNorm.includes("PENAL") && (xOrg.includes("PENAL") || x.esp === "PE")) mInst = true;
-        else if (insNorm.includes("CIVIL") && (xOrg.includes("CIVIL") || x.esp === "CI")) mInst = true;
-        else if (insNorm.includes("PAZ") && (x.inst === "JP" || xOrg.includes("PAZ"))) mInst = true;
-        else if (insNorm.includes("SUPERIOR") && (x.inst === "SP" || xOrg.includes("SUPERIOR"))) mInst = true;
-        else if (insNorm.includes("ESPECIALIZADO") && (x.inst === "JR" || xOrg.includes("ESPECIALIZADO"))) mInst = true;
+        else if (insNorm.includes("TRABAJO") && (xOrg.includes("TRABAJO") || especialidad === "LABORAL")) mInst = true;
+        else if (insNorm.includes("PENAL") && (xOrg.includes("PENAL") || especialidad === "PENAL")) mInst = true;
+        else if (insNorm.includes("CIVIL") && (xOrg.includes("CIVIL") || especialidad === "CIVIL")) mInst = true;
+        else if (insNorm.includes("PAZ") && (instanciaCodigo === "JP" || xOrg.includes("PAZ"))) mInst = true;
+        else if (insNorm.includes("SUPERIOR") && (instanciaCodigo === "SP" || xOrg.includes("SUPERIOR"))) mInst = true;
+        else if (insNorm.includes("ESPECIALIZADO") && (instanciaCodigo === "JR" || xOrg.includes("ESPECIALIZADO"))) mInst = true;
         if (!mInst) return false;
       }
 
       // 4. Especialidad
       if (es) {
         const esNorm = norm(es);
-        const xEsp = norm(x.esp);
+        const xEsp = norm(especialidad);
         const xEspNom = norm(x.reporte?.especialidad || "");
         let mEsp = false;
         if (xEsp === esNorm || xEspNom === esNorm) mEsp = true;
-        else if (esNorm === "LABORAL" && (x.esp === "LA" || xEspNom.includes("LABORAL"))) mEsp = true;
-        else if (esNorm === "CIVIL" && (x.esp === "CI" || xEspNom.includes("CIVIL"))) mEsp = true;
-        else if (esNorm === "PENAL" && (x.esp === "PE" || xEspNom.includes("PENAL"))) mEsp = true;
-        else if (esNorm.includes("FAMILIA") && (x.esp === "FC" || xEspNom.includes("FAMILIA"))) mEsp = true;
-        else if (esNorm === "COMERCIAL" && (x.esp === "CO" || xEspNom.includes("COMERCIAL"))) mEsp = true;
+        else if (esNorm === "LABORAL" && (especialidad === "LABORAL" || xEspNom.includes("LABORAL"))) mEsp = true;
+        else if (esNorm === "CIVIL" && (especialidad === "CIVIL" || xEspNom.includes("CIVIL"))) mEsp = true;
+        else if (esNorm === "PENAL" && (especialidad === "PENAL" || xEspNom.includes("PENAL"))) mEsp = true;
+        else if (esNorm.includes("FAMILIA") && (especialidad === "FAMILIA CIVIL" || xEspNom.includes("FAMILIA"))) mEsp = true;
+        else if (esNorm === "COMERCIAL" && (especialidad === "COMERCIAL" || xEspNom.includes("COMERCIAL"))) mEsp = true;
         if (!mEsp) return false;
       }
 
       // 5. Año
-      if (an && x.anio !== an) return false;
+      if (an && anioExpediente !== an) return false;
       return true;
     };
   } else {
@@ -507,6 +515,35 @@ function renderActuaciones() {
       if (url) abrirVisor(url, "Expediente Completo Digitalizado N° " + expActual.codigo);
     };
   }
+  const cacheButton = $("btnCachearPdfs");
+  const cacheStatus = $("estadoCachePdf");
+  if (cacheButton) {
+    const disponible = esServidorLocal() && PDF_INDEX_FILES.length > 0 &&
+      typeof window.precargarPDFs === "function";
+    cacheButton.hidden = !disponible;
+    cacheButton.disabled = false;
+    cacheButton.onclick = async () => {
+      cacheButton.disabled = true;
+      cacheStatus.textContent = "Preparando documentos para guardarlos sin conexión...";
+      try {
+        const resultado = await window.precargarPDFs(PDF_INDEX_FILES, avance => {
+          cacheStatus.textContent = `Guardando PDF ${avance.completed} de ${avance.total}...`;
+        });
+        cacheStatus.textContent = resultado.failed
+          ? `Se guardaron ${resultado.cached} de ${resultado.total} PDF; ${resultado.failed} no se pudieron guardar. Revisa el espacio disponible e inténtalo de nuevo.`
+          : `Listo: los ${resultado.cached} PDF se guardaron para consulta sin conexión.`;
+      } catch (error) {
+        console.error("No se pudieron guardar los PDF para consulta sin conexión:", error);
+        cacheStatus.textContent = error.message || "No se pudieron guardar los PDF para consulta sin conexión.";
+      } finally {
+        cacheButton.disabled = false;
+      }
+    };
+  }
+  const pdfSummary = $("pdfSummary");
+  if (pdfSummary) {
+    pdfSummary.textContent = `${expActual.actuaciones?.length || 0} documentos vinculados · ${PDF_INDEX_FILES.length} PDF detectados en la carpeta local`;
+  }
   const acts = expActual.actuaciones || [];
   const totalPags = Math.max(1, Math.ceil(acts.length / ACTS_POR_PAG));
   paginaActual = Math.min(paginaActual, totalPags);
@@ -600,8 +637,43 @@ async function resolverUrl(url) {
   // Archivos locales en carpeta expedientes/
   if (u.startsWith("expedientes/") || u.startsWith("./expedientes/") || u.startsWith("/expedientes/")) {
     const cleanPath = u.replace(/^\.\//, "").replace(/^\//, "");
-    const encoded = encodeURI(cleanPath);
-    return { view: encoded, download: encoded };
+    const fileUrl = new URL(cleanPath, location.href).href;
+    const indexedFile = PDF_INDEX_FILES.find(file => new URL(file.url, location.href).href === fileUrl);
+    let cached = null;
+    try {
+      cached = window.obtenerPdfCache ? await window.obtenerPdfCache(fileUrl) : null;
+      if (cached?.blob && (!indexedFile || cached.lastModified === indexedFile.lastModified)) {
+        const objectUrl = URL.createObjectURL(cached.blob);
+        return { view: objectUrl, download: objectUrl, objectUrl };
+      }
+    } catch (error) {
+      console.error("No se pudo leer el PDF guardado en caché:", error);
+    }
+
+    try {
+      const response = await fetch(fileUrl, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`No se pudo abrir el PDF (HTTP ${response.status}).`);
+      if (response.headers.get("Content-Type")?.split(";")[0] !== "application/pdf") {
+        throw new Error("El archivo recibido no es un PDF.");
+      }
+      const blob = await response.blob();
+      if (window.guardarPdfCache) {
+        try {
+          await window.guardarPdfCache(fileUrl, blob, indexedFile?.lastModified || "");
+        } catch (error) {
+          console.error("No se pudo guardar este PDF en la caché:", error);
+        }
+      }
+      const objectUrl = URL.createObjectURL(blob);
+      return { view: objectUrl, download: objectUrl, objectUrl };
+    } catch (error) {
+      if (cached?.blob) {
+        console.warn("No se pudo actualizar el PDF; se abrirá la copia guardada en caché.", error);
+        const objectUrl = URL.createObjectURL(cached.blob);
+        return { view: objectUrl, download: objectUrl, objectUrl };
+      }
+      throw error;
+    }
   }
   u = u.replace(/^(https?:)+\/\//, "https://");
   const id = (u.match(/\/d\/([a-zA-Z0-9_-]+)/) || u.match(/[?&]id=([a-zA-Z0-9_-]+)/) || [])[1];
@@ -609,28 +681,130 @@ async function resolverUrl(url) {
     return { view: `https://drive.google.com/file/d/${id}/preview`, download: `https://drive.google.com/uc?export=download&id=${id}` };
   return { view: u, download: u };
 }
-async function abrirVisor(url, titulo) {
-  const r = await resolverUrl(url);
-  if (!r.view) return toast("Documento no disponible");
-  $("visor-nombre").textContent = titulo || "Documento";
-  $("iframe-drive").src = r.view;
-  $("visorExt").href = r.view;
-  $("visorModal").hidden = false;
-  document.body.style.overflow = "hidden";
+
+async function renderPdfsCarpeta() {
+  const list = $("browserFolderList");
+  const clearButton = $("browserFolderClear");
+  if (!list || !window.obtenerPdfsCarpeta) return;
+  const files = await window.obtenerPdfsCarpeta();
+  const privateRecords = await window.obtenerCacheDatos("browser-folder-expedientes-v1");
+  clearButton.hidden = !files.length && !Array.isArray(privateRecords?.value);
+  list.innerHTML = files.length ? files.map((file, index) => `
+    <li class="browser-file-row">
+      <span class="browser-file-name" title="${esc(file.path)}">${esc(file.path)}</span>
+      <span class="browser-file-actions">
+        <button type="button" data-browser-view="${index}">Ver</button>
+        <button type="button" data-browser-download="${index}">Descargar</button>
+      </span>
+    </li>`).join("") : `<li class="browser-file-empty">${privateRecords?.value?.length ? "La carpeta seleccionada no contiene PDF guardados." : "Aún no has seleccionado una carpeta."}</li>`;
+  list.querySelectorAll("[data-browser-view]").forEach(button => {
+    const file = files[Number(button.dataset.browserView)];
+    button.onclick = () => abrirVisor(file.url, file.name);
+  });
+  list.querySelectorAll("[data-browser-download]").forEach(button => {
+    const file = files[Number(button.dataset.browserDownload)];
+    button.onclick = () => descargar(file.url, file.name);
+  });
 }
+
+function inicializarCargaCarpeta() {
+  const input = $("browserFolderInput");
+  const selectButton = $("browserFolderButton");
+  const clearButton = $("browserFolderClear");
+  const status = $("browserFolderStatus");
+  if (!input || !selectButton || !clearButton || !status) return;
+
+  selectButton.onclick = () => input.click();
+  input.onchange = async () => {
+    const files = Array.from(input.files || []);
+    if (!files.length) return;
+    selectButton.disabled = true;
+    status.classList.remove("err");
+    status.textContent = "Leyendo archivos en este navegador; no se están enviando a Internet...";
+    try {
+      const pdfResult = await window.importarPdfsCarpeta(files, progress => {
+        status.textContent = `Guardando PDF ${progress.completed} de ${progress.total} en este navegador...`;
+      });
+      const dataFile = files.find(file => /(?:^|[\\/])data[\\/]expedientes\.json$/i.test(file.webkitRelativePath || file.name));
+      let expedienteCount = 0;
+      if (dataFile) {
+        const data = JSON.parse(await dataFile.text());
+        if (!Array.isArray(data) || data.some(expediente => !expediente || typeof expediente.codigo !== "string")) {
+          throw new Error("data/expedientes.json no contiene una lista válida de expedientes.");
+        }
+        expedienteCount = await window.agregarExpedientesPrivados(data);
+      }
+      const failures = pdfResult.failed ? `; ${pdfResult.failed} PDF no se pudieron guardar` : "";
+      const records = expedienteCount ? `; ${expedienteCount} expediente(s) cargados` : "";
+      status.textContent = `${pdfResult.cached} PDF disponibles en este navegador${records}${failures}.`;
+      await renderPdfsCarpeta();
+    } catch (error) {
+      console.error("No se pudieron cargar los archivos locales:", error);
+      status.textContent = error.message || "No se pudieron cargar los archivos de la carpeta.";
+      status.classList.add("err");
+    } finally {
+      selectButton.disabled = false;
+      input.value = "";
+    }
+  };
+
+  clearButton.onclick = async () => {
+    clearButton.disabled = true;
+    try {
+      await window.olvidarDatosCarpeta();
+      location.reload();
+    } catch (error) {
+      console.error("No se pudieron eliminar los archivos privados de este navegador:", error);
+      status.textContent = error.message || "No se pudieron eliminar los archivos privados.";
+      status.classList.add("err");
+      clearButton.disabled = false;
+    }
+  };
+  renderPdfsCarpeta().catch(error => {
+    console.error("No se pudo leer la lista de documentos de este navegador:", error);
+    status.textContent = "No se pudo leer la caché privada del navegador.";
+    status.classList.add("err");
+  });
+}
+async function abrirVisor(url, titulo) {
+  try {
+    const r = await resolverUrl(url);
+    if (!r.view) return toast("Documento no disponible");
+    if (visorObjectUrl) URL.revokeObjectURL(visorObjectUrl);
+    visorObjectUrl = r.objectUrl || "";
+    $("visor-nombre").textContent = titulo || "Documento";
+    $("iframe-drive").src = r.view;
+    $("visorExt").href = r.view;
+    $("visorModal").hidden = false;
+    document.body.style.overflow = "hidden";
+  } catch (error) {
+    console.error("No se pudo abrir el documento:", error);
+    toast(error.message || "No se pudo abrir el documento.");
+  }
+}
+let visorObjectUrl = "";
 function cerrarVisor() {
   $("visorModal").hidden = true;
   $("iframe-drive").src = "";
+  if (visorObjectUrl) URL.revokeObjectURL(visorObjectUrl);
+  visorObjectUrl = "";
   document.body.style.overflow = "";
 }
 async function descargar(url, titulo) {
-  const r = await resolverUrl(url);
-  toast(`Descargando copia: ${titulo}`);
-  const a = document.createElement("a");
-  a.href = r.download || r.view;
-  a.download = (titulo || "documento").replace(/[\\/:*?"<>|]/g, "_") + ".pdf";
-  a.target = "_blank"; a.rel = "noopener";
-  document.body.append(a); a.click(); a.remove();
+  try {
+    const r = await resolverUrl(url);
+    if (!r.view) return toast("Documento no disponible");
+    toast(`Descargando copia: ${titulo}`);
+    const a = document.createElement("a");
+    a.href = r.download || r.view;
+    a.download = (titulo || "documento").replace(/[\\/:*?"<>|]/g, "_") + ".pdf";
+    a.rel = "noopener";
+    document.body.append(a); a.click(); a.remove();
+    if (r.objectUrl) setTimeout(() => URL.revokeObjectURL(r.objectUrl), 60000);
+  } catch (error) {
+    console.error("No se pudo descargar el documento:", error);
+    toast(error.message || "No se pudo descargar el documento.");
+  }
 }
 window.abrirVisorPdf = abrirVisor;   // compatibilidad
 $("btnCerrarVisor").onclick = cerrarVisor;
@@ -788,6 +962,7 @@ document.addEventListener("keydown", e => {
 });
 
 /* ===================== INICIO ===================== */
+inicializarCargaCarpeta();
 cargarDB();
 (() => {
   const s = sessionStorage.getItem("sice_sesion"), db = users();

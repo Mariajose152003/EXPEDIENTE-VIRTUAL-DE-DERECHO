@@ -1,5 +1,6 @@
 scratch/
 node_modules/
-expedientes/
+.cache/
 .DS_Store
 Thumbs.db
+expedientes/

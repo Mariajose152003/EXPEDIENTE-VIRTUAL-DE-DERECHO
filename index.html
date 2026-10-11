@@ -169,6 +169,22 @@
       </div>
 
       <h2 class="sec-title">Búsqueda de Expedientes</h2>
+      <p id="dbStatus" class="data-status" role="status" aria-live="polite">Cargando expedientes y documentos locales...</p>
+
+      <section class="browser-files" aria-labelledby="browser-files-title">
+        <div>
+          <h3 id="browser-files-title">Abrir expedientes privados desde este equipo</h3>
+          <p>GitHub Pages no puede leer carpetas de tu computadora por sí solo. Selecciona la carpeta del proyecto o la carpeta <b>expedientes</b> para consultar sus PDF aquí.</p>
+          <p class="browser-files-privacy">Los archivos y datos se leen y guardan solo en este navegador; no se envían ni se publican.</p>
+        </div>
+        <div class="browser-files-actions">
+          <input id="browserFolderInput" type="file" accept=".pdf,application/pdf,.json,application/json" webkitdirectory directory multiple hidden>
+          <button id="browserFolderButton" type="button" class="btn-full-ver"><i class="fa-solid fa-folder-open"></i> Seleccionar carpeta</button>
+          <button id="browserFolderClear" type="button" class="btn-full-dl" hidden>Olvidar datos de este navegador</button>
+        </div>
+        <p id="browserFolderStatus" class="cache-status" role="status" aria-live="polite"></p>
+        <ul id="browserFolderList" class="browser-files-list"></ul>
+      </section>
 
       <form id="formBusq" class="search-card" autocomplete="off" novalidate>
         <div class="search-tabs">
@@ -346,13 +362,15 @@
               <span class="full-exp-icon"><i class="fa-solid fa-file-pdf"></i></span>
               <div>
                 <h4>Documentos del expediente</h4>
-                <p>Los documentos disponibles para cada expediente se mostraran aqui.</p>
+                <p id="pdfSummary">PDF vinculados al expediente.</p>
               </div>
             </div>
             <div class="full-exp-actions">
               <button class="btn-full-ver" id="btnVerExpCompleto" type="button"><i class="fa-solid fa-book-open"></i> Visualizar Expediente Completo</button>
+              <button class="btn-full-dl" id="btnCachearPdfs" type="button" hidden><i class="fa-solid fa-cloud-arrow-down"></i> Guardar todos los PDF sin conexión</button>
             </div>
           </div>
+          <p id="estadoCachePdf" class="cache-status" role="status" aria-live="polite"></p>
 
           <div class="act-wrap">
             <table class="act-table">
