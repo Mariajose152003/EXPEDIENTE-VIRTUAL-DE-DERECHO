@@ -55,6 +55,8 @@ function esPdfLocal(url) {
 }
 
 function agregarIndicePdf(expedientes, archivos) {
+  if (!archivos.length) return 0;
+
   const rutasDisponibles = new Set(archivos.map(archivo => normalizarUrlPdf(archivo.url)));
 
   expedientes.forEach(expediente => {
