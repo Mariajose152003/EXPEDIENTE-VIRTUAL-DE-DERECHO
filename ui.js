@@ -114,7 +114,6 @@ function entrar(usuario, nombre) {
   document.body.classList.add("app-active");
   $("vistaLogin").hidden = true;
   $("vistaApp").hidden = false;
-  $("aiAssistantBtn").hidden = false;
   $("usuario").textContent = nombre;
   $("btnAdmin").hidden = !(usuario === ADMIN_USER || usuario === "admin");
   finSesion = Date.now() + 15 * 60000;
@@ -204,10 +203,12 @@ function traducirTodoElDOM(idioma) {
     ["placeholder", "title", "aria-label"].forEach(atributo => {
       const valor = elemento.getAttribute(atributo);
       if (!valor) return;
-      if (!elemento.dataset["original" + atributo]) elemento.dataset["original" + atributo] = valor;
+      const atributoOriginal = "data-original-" + atributo;
+      if (!elemento.hasAttribute(atributoOriginal)) elemento.setAttribute(atributoOriginal, valor);
+      const valorOriginal = elemento.getAttribute(atributoOriginal);
       elemento.setAttribute(atributo, idioma === "es"
-        ? elemento.dataset["original" + atributo]
-        : traducirTextoNatural(valor, idioma));
+        ? valorOriginal
+        : traducirTextoNatural(valorOriginal, idioma));
     });
   });
 }
@@ -1218,12 +1219,16 @@ const KB = [
 ];
 
 function abrirIA() {
+  document.body.classList.add("chat-open");
   $("iaModal").hidden = false;
   if (!$("iaChat").children.length)
     msgIA("Hola, soy PIBbLE. ¿Qué deseas saber sobre este expediente o proceso judicial?\nPuedes preguntar por: estado, partes, sentencia, última actuación, juez, avance, cronología o temas generales.");
   setTimeout(() => $("iaInput").focus(), 50);
 }
-function cerrarIA() { $("iaModal").hidden = true; }
+function cerrarIA() {
+  $("iaModal").hidden = true;
+  document.body.classList.remove("chat-open");
+}
 $("aiAssistantBtn").addEventListener("click", e => {
   e.preventDefault();
   abrirIA();
@@ -1246,6 +1251,17 @@ function msgIA(t, user) {
 
 function generarRespuesta(q) {
   const n = " " + norm(q).toLowerCase() + " ", x = expActual;
+  const respuestaNumerica = calcularOperacion(q);
+  if (respuestaNumerica !== null) return `El resultado es ${respuestaNumerica}.`;
+  if (/hola|buenas|buenos dias|buenas tardes/.test(n)) {
+    return "¡Hola! Soy PIBbLE. Puedo ayudarte con cálculos, preguntas generales y consultas sobre el expediente abierto.";
+  }
+  if (/gracias|muchas gracias/.test(n)) return "¡De nada! Estoy aquí para ayudarte.";
+  if (/quien eres|que puedes hacer|que haces/.test(n)) {
+    return "Soy PIBbLE, el asistente virtual del expediente. Puedo resolver operaciones aritméticas, responder preguntas básicas y ayudarte a consultar el estado, las partes, las actuaciones y la cronología del expediente.";
+  }
+  if (/que hora|hora es/.test(n)) return `La hora local es ${new Date().toLocaleTimeString("es-PE")}.`;
+  if (/que fecha|fecha es|dia es hoy/.test(n)) return `Hoy es ${new Date().toLocaleDateString("es-PE", { dateStyle: "long" })}.`;
   if (x) {
     const rp = x.reporte || {}, pr = x.progreso || {}, acts = x.actuaciones || [];
     const partes = (x.partes || []).map(p => `• ${p.rol}: ${[p.apellidoPaterno, p.apellidoMaterno, p.nombres].filter(Boolean).join(" ")}`).join("\n");
@@ -1280,12 +1296,75 @@ function generarRespuesta(q) {
   if (hit) return hit[1] + "\n\n(Información referencial)";
   if (/hola|buenas/.test(n)) return "Hola, soy tu asistente IA especializado en consultas judiciales. ¿En qué puedo ayudarte?";
   return x ? "Puedo ayudarte con: estado, partes, sentencia, última actuación, juez, avance, próximo paso o cronología del expediente."
-           : "Primero consulta un expediente para darte información específica. También puedo explicarte el formato del código, tipos de juzgado o leyes relacionadas.";
+           : "Puedo resolver operaciones y responder preguntas básicas. Para consultar datos de un proceso, primero busca y abre un expediente.";
+}
+
+function calcularOperacion(pregunta) {
+  const normalizada = pregunta.toLowerCase()
+    .replace(/multiplicado\s+por|por/g, "*")
+    .replace(/dividido\s+entre|dividido\s+por|entre/g, "/")
+    .replace(/\b(?:suma|sumar)\b/g, "")
+    .replace(/(\d+(?:\.\d+)?)\s+y\s+(\d+(?:\.\d+)?)/g, "$1+$2")
+    .replace(/\bm[aá]s\b/g, "+")
+    .replace(/\bmenos\b/g, "-")
+    .replace(/×/g, "*")
+    .replace(/÷/g, "/")
+    .replace(/,/g, ".");
+  const expresiones = normalizada.match(/(?:\d+(?:\.\d+)?|[()+*/%\-])(?:\s*(?:\d+(?:\.\d+)?|[()+*/%\-]))+/g) || [];
+  const expresion = expresiones.find(item => /\d/.test(item) && /[+*/%\-]/.test(item) && /^[\d\s.+*/()%\-]+$/.test(item));
+  if (!expresion) return null;
+
+  const tokens = expresion.match(/\d+(?:\.\d+)?|[()+*/%\-]/g) || [];
+  let posicion = 0;
+  function primario() {
+    const token = tokens[posicion++];
+    if (token === "+") return primario();
+    if (token === "-") return -primario();
+    if (token === "(") {
+      const resultado = suma();
+      if (tokens[posicion++] !== ")") throw new Error("Paréntesis incompletos");
+      return resultado;
+    }
+    if (!token || !/^\d/.test(token)) throw new Error("Operación inválida");
+    return Number(token);
+  }
+  function producto() {
+    let resultado = primario();
+    while (["*", "/", "%"].includes(tokens[posicion])) {
+      const operador = tokens[posicion++];
+      const valor = primario();
+      if ((operador === "/" || operador === "%") && valor === 0) throw new Error("No se puede dividir entre cero");
+      if (operador === "*") resultado *= valor;
+      if (operador === "/") resultado /= valor;
+      if (operador === "%") resultado %= valor;
+    }
+    return resultado;
+  }
+  function suma() {
+    let resultado = producto();
+    while (tokens[posicion] === "+" || tokens[posicion] === "-") {
+      const operador = tokens[posicion++];
+      const valor = producto();
+      resultado = operador === "+" ? resultado + valor : resultado - valor;
+    }
+    return resultado;
+  }
+  try {
+    const resultado = suma();
+    if (posicion !== tokens.length || !Number.isFinite(resultado)) return null;
+    return Number.isInteger(resultado) ? String(resultado) : String(Number(resultado.toFixed(8)));
+  } catch {
+    return null;
+  }
 }
 
 const historialChatIA = [];
 
 async function consultarChatGPT(pregunta) {
+  if (!["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) {
+    return generarRespuesta(pregunta);
+  }
+
   const contextoExpediente = expActual ? JSON.stringify({
     codigo: expActual.codigo,
     reporte: expActual.reporte,
@@ -1325,8 +1404,8 @@ function responderIA(q, silencioso) {
     msgIA(respuesta);
   }).catch(error => {
     t.remove();
-    console.error("No se pudo consultar la API del chatbot:", error);
-    msgIA(generarRespuesta(q) + "\n\n(Respuesta local: configura OPENAI_API_KEY para activar el chatbot completo.)");
+    console.warn("La API del chatbot no está disponible; se usa el asistente local:", error);
+    msgIA(generarRespuesta(q));
   });
 }
 $("iaForm").onsubmit = e => {

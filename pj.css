@@ -845,8 +845,8 @@ body.daltonismo-tritanopia{filter:sepia(.1) saturate(.75) hue-rotate(180deg)}
 .toast i{color:var(--rose);font-size:24px;animation:pulse 2s infinite}
 .toast p{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
 
-.ai-fab{position:fixed;bottom:24px;right:24px;background:var(--wine);color:#fff;width:auto;min-width:64px;height:64px;border-radius:32px;box-shadow:var(--sh-2xl);display:none;align-items:center;justify-content:center;gap:8px;padding:5px 14px 5px 5px;font-size:13px;font-weight:900;border:4px solid var(--rose);z-index:200;transition:all .2s;animation:pulse 2.5s infinite}
-body.app-active .ai-fab{display:flex}
+.ai-fab{position:fixed;bottom:20px;right:20px;background:var(--wine);color:#fff;width:auto;min-width:64px;height:64px;border-radius:32px;box-shadow:var(--sh-2xl);display:flex;align-items:center;justify-content:center;gap:8px;padding:5px 14px 5px 5px;font-size:13px;font-weight:900;border:4px solid var(--rose);z-index:10000;transition:all .2s;animation:pulse 2.5s infinite}
+.ai-fab[hidden],body.chat-open .ai-fab{display:none}
 .ai-fab:hover{background:var(--wine-d);transform:scale(1.1);animation:none}
 
 /* RENIEC */
@@ -883,6 +883,8 @@ body.app-active .ai-fab{display:flex}
 
 /* IA */
 .ia-card{background:#fff;border-radius:24px;max-width:672px;width:100%;box-shadow:var(--sh-2xl);overflow:hidden;border:4px solid var(--wine)}
+.ia-card{display:flex;flex-direction:column;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px)}
+#iaModal{z-index:10001}
 .ia-head{background:var(--wine);color:#fff;padding:24px;display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid var(--rose)}
 .ia-ico{background:rgba(255,255,255,.1);padding:12px;border-radius:12px;font-size:24px;color:var(--rose)}
 .ia-ico img{display:block;width:44px;height:44px;object-fit:cover;border-radius:50%;border:2px solid var(--rose)}
@@ -891,7 +893,7 @@ body.app-active .ai-fab{display:flex}
 .ia-head button{color:rgba(255,255,255,.6);font-size:24px}
 .ia-head button:hover{color:#fff}
 .ai-fab img{width:54px;height:54px;border-radius:50%;object-fit:cover}
-.ia-chat{height:340px;overflow-y:auto;padding:24px;background:var(--gray-50);display:flex;flex-direction:column;gap:16px}
+.ia-chat{height:340px;min-height:0;flex:1 1 340px;overflow-y:auto;padding:24px;background:var(--gray-50);display:flex;flex-direction:column;gap:16px}
 .im{display:flex;gap:12px;align-items:flex-start}
 .im.u{justify-content:flex-end}
 .im .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;background:var(--wine);color:#fff}
@@ -932,6 +934,22 @@ body.app-active .ai-fab{display:flex}
   .pcard-b{padding:24px}
   .mapa-body{padding:24px 36px}
   .ced-list{margin-left:0}
+  .ai-fab{right:12px;bottom:12px;min-width:58px;height:58px;padding-right:10px;font-size:12px}
+  .ai-fab img{width:48px;height:48px}
+  #iaModal{padding:8px}
+  .ia-card{width:100%;max-width:none;max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);min-height:0;border-width:2px;border-radius:16px}
+  .ia-head{padding:12px 14px}
+  .ia-head .rh-l{min-width:0}
+  .ia-head .rh-l>div{min-width:0}
+  .ia-head h3{font-size:15px}
+  .ia-head p{font-size:10px}
+  .ia-ico{padding:6px}
+  .ia-ico img{width:38px;height:38px}
+  .ia-chat{flex:1 1 auto;height:auto;min-height:140px;padding:14px}
+  .im .bb{max-width:86%;padding:10px 12px;font-size:12px}
+  .ia-input{padding:10px;gap:8px}
+  .ia-input input{min-width:0;padding:10px 12px}
+  .ia-input button{padding:10px 16px}
 }
 
 /* ---------- IMPRESIÓN ---------- */
