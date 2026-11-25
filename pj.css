@@ -492,6 +492,27 @@ a{color:inherit;text-decoration:none}
 .rose{color:var(--rose)}
 .nav-user{display:flex;align-items:center;gap:6px}
 .nav-out{color:var(--rose);font-size:11px;padding:3px 6px;border-radius:4px;transition:.2s}
+.nav-access-tools{position:relative;display:flex;align-items:center;gap:8px;margin-left:4px}
+.language-control{display:flex;align-items:center;gap:6px;color:#fff}
+.language-control select{width:auto;min-width:98px;padding:5px 28px 5px 8px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:700}
+.language-control select option{background:#fff;color:var(--gray-800)}
+.accessibility-toggle{display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid rgba(255,255,255,.55);border-radius:6px;background:rgba(255,255,255,.12);color:#fff;font-size:10px;font-weight:800}
+.accessibility-toggle:hover,.language-control select:hover{background:rgba(255,255,255,.22)}
+.accessibility-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:220px;padding:10px;border:1px solid var(--gray-200);border-radius:8px;background:#fff;color:var(--gray-800);box-shadow:var(--sh-2xl)}
+.accessibility-panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding-bottom:8px;border-bottom:1px solid var(--gray-200)}
+.accessibility-panel-head button{padding:4px 7px;color:var(--wine)}
+.accessibility-panel>button{display:flex;align-items:center;gap:9px;width:100%;padding:8px;border-radius:5px;color:var(--gray-800);text-align:left;font-size:12px;font-weight:700}
+.accessibility-panel>button:hover,.accessibility-panel>button.active{background:var(--rose-soft);color:var(--wine)}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+body.texto-grande{font-size:17px}
+body.alto-contraste{filter:contrast(1.35)}
+body.espaciado-lectura *{line-height:1.8!important;letter-spacing:.02em!important}
+body.daltonismo-protanopia{filter:sepia(.15) saturate(.8) hue-rotate(-12deg)}
+body.daltonismo-deuteranopia{filter:sepia(.12) saturate(.85) hue-rotate(10deg)}
+body.daltonismo-tritanopia{filter:sepia(.1) saturate(.75) hue-rotate(180deg)}
+.daltonismo-options{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:4px 0 6px 20px}
+.daltonismo-options button{padding:7px 6px;border:1px solid var(--gray-200);border-radius:5px;background:#fff;color:var(--gray-800);font-size:10px;font-weight:700}
+.daltonismo-options button:hover,.daltonismo-options button.active{border-color:var(--wine);background:var(--rose-soft);color:var(--wine)}
 .nav-out:hover{background:rgba(255,255,255,.15);color:#fff}
 
 /* ---------- COMUNICADO ---------- */
@@ -508,6 +529,10 @@ a{color:inherit;text-decoration:none}
 .stab+.stab{border-left:1px solid var(--gray-200)}
 .stab.on{color:#fff;background:var(--wine)}
 .stab:not(.on):hover{color:var(--wine);background:var(--rose-soft)}
+.search-autofill-row{display:flex;justify-content:flex-end;padding:12px 40px 0;background:#fff}
+.btn-autocompletar-busqueda{display:inline-flex;align-items:center;gap:8px;background:var(--rose-soft);color:var(--wine);border:1px solid var(--rose);border-radius:999px;padding:8px 14px;font-size:12px;font-weight:900;letter-spacing:.04em;cursor:pointer;transition:all .2s}
+.btn-autocompletar-busqueda:hover{background:var(--wine);color:#fff;border-color:var(--wine);box-shadow:var(--sh-md);transform:translateY(-1px)}
+.btn-autocompletar-busqueda:active{transform:translateY(0)}
 .tab-pane{padding:40px 40px 0;max-width:896px;margin:0 auto}
 .tab-pane.pt0{padding-top:16px;padding-bottom:40px}
 #tab-filtros{display:flex;flex-direction:column;gap:16px}
@@ -884,6 +909,10 @@ a{color:inherit;text-decoration:none}
   .hdr-title{font-size:15px}
   .nav-row{flex-direction:column;padding-bottom:8px}
   .nav-info{flex-wrap:wrap;justify-content:center;gap:10px}
+  .nav-access-tools{justify-content:center;flex-wrap:wrap;margin:6px 0}
+  .accessibility-toggle span{display:none}
+  .accessibility-panel{right:50%;transform:translateX(50%)}
+  .search-autofill-row{justify-content:center;padding:12px 20px 0}
   .tab-pane{padding:24px 20px 0}
   .frow{flex-direction:column;align-items:stretch;gap:6px}
   .frow>label{width:100%;text-align:left;padding:0}

@@ -41,8 +41,8 @@
         <div class="insignia-scale"><i class="fa-solid fa-scale-balanced"></i></div>
         <div class="insignia-badge">PJ • PERÚ</div>
       </div>
-      <h1 class="login-brand-title">PODER JUDICIAL DEL PERÚ</h1>
-      <p class="login-brand-motto">Justicia Honorable, País Respetable</p>
+      <h1 class="login-brand-title" data-i18n="brandTitle">PODER JUDICIAL DEL PERÚ</h1>
+      <p class="login-brand-motto" data-i18n="brandMotto">Justicia Honorable, País Respetable</p>
       <div class="login-brand-info">
         <div class="brand-item">
           <i class="fa-solid fa-shield-halved"></i>
@@ -68,13 +68,13 @@
           </div>
           <span>ACCESO AL SISTEMA</span>
         </div>
-        <h2 id="tituloLogin">Iniciar Sesión</h2>
-        <p class="login-card-sub">Ingresa con tus credenciales asignadas</p>
+        <h2 id="tituloLogin" data-i18n="loginTitle">Iniciar Sesión</h2>
+        <p class="login-card-sub" data-i18n="loginSubtitle">Ingresa con tus credenciales asignadas</p>
       </div>
 
       <div class="login-fields">
         <label class="lg-field">
-          <span>Usuario</span>
+          <span data-i18n="user">Usuario</span>
           <div class="lg-input">
             <i class="fa-solid fa-user"></i>
             <input id="lUser" required minlength="4" placeholder="Ej. usuario" autocomplete="username">
@@ -82,7 +82,7 @@
         </label>
 
         <label class="lg-field">
-          <span>Contraseña</span>
+          <span data-i18n="password">Contraseña</span>
           <div class="lg-input">
             <i class="fa-solid fa-lock"></i>
             <input id="lPass" type="password" required minlength="6" placeholder="••••••••" autocomplete="current-password">
@@ -91,7 +91,7 @@
         </label>
 
         <label class="lg-field" id="lblNombre" hidden>
-          <span>Nombre completo</span>
+          <span data-i18n="fullName">Nombre completo</span>
           <div class="lg-input">
             <i class="fa-solid fa-id-card"></i>
             <input id="lNombre" placeholder="Tu nombre">
@@ -101,12 +101,17 @@
         <p id="loginMsg" class="msg" role="alert"></p>
 
         <button class="btn-login-submit" type="submit" id="btnLogin">
-          <span>INGRESAR AL SISTEMA</span>
+          <span data-i18n="loginButton">INGRESAR AL SISTEMA</span>
           <i class="fa-solid fa-arrow-right-to-bracket"></i>
         </button>
 
-        <button class="btn-link" type="button" id="btnModo">¿No tienes cuenta? Regístrate</button>
-        <button class="btn-link-sec" type="button" id="btnVerAdvertencia"><i class="fa-solid fa-triangle-exclamation"></i> Ver advertencia de simulación</button>
+        <button class="login-quick-access" type="button" id="btnAutocompletar">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span data-i18n="autofill">AUTOCOMPLETAR</span>
+        </button>
+
+        <button class="btn-link" type="button" id="btnModo" data-i18n="registerLink">¿No tienes cuenta? Regístrate</button>
+        <button class="btn-link-sec" type="button" id="btnVerAdvertencia"><i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="warningLink">Ver advertencia de simulación</span></button>
       </div>
     </form>
   </div>
@@ -143,16 +148,48 @@
   <nav class="pj-nav">
     <div class="container nav-row">
       <ul class="nav-links">
-        <li><a href="#" id="navInicio">Inicio</a></li>
-        <li><a href="#" id="navVideos">Videotutoriales</a></li>
-        <li><a href="#" id="navAyuda">Preguntas Frecuentes</a></li>
-        <li><a href="admin.html" target="_blank" id="btnAdmin" hidden><i class="fa-solid fa-gear"></i> Gestión</a></li>
+        <li><a href="#" id="navInicio" data-i18n="home">Inicio</a></li>
+        <li><a href="#" id="navVideos" data-i18n="tutorials">Videotutoriales</a></li>
+        <li><a href="#" id="navAyuda" data-i18n="faq">Preguntas Frecuentes</a></li>
+        <li><a href="admin.html" target="_blank" id="btnAdmin" hidden><i class="fa-solid fa-gear"></i> <span data-i18n="management">Gestión</span></a></li>
       </ul>
       <div class="nav-info">
         <p id="current-datetime">Fecha: --/--/---- Hora: --:--:--</p>
         <p>Tiempo restante de sesión: <span id="sesionRestante" class="rose">15:00</span></p>
         <p class="nav-user"><i class="fa-solid fa-circle-user"></i> <span id="usuario"></span>
           <button id="btnSalir" class="nav-out" title="Cerrar sesión"><i class="fa-solid fa-power-off"></i></button></p>
+      </div>
+      <div class="nav-access-tools">
+        <label class="language-control" for="selectorIdioma" title="Seleccionar idioma">
+          <i class="fa-solid fa-globe"></i>
+          <span class="sr-only">Idioma</span>
+          <select id="selectorIdioma" aria-label="Seleccionar idioma">
+            <option value="es">Español</option>
+            <option value="qu">Quechua</option>
+            <option value="ay">Aymara</option>
+          </select>
+        </label>
+        <button type="button" id="btnAccesibilidad" class="accessibility-toggle" aria-expanded="false" aria-controls="panelAccesibilidad" title="Opciones de accesibilidad">
+          <i class="fa-solid fa-universal-access"></i>
+          <span data-i18n="accessibility">Accesibilidad</span>
+        </button>
+        <div id="panelAccesibilidad" class="accessibility-panel" hidden>
+          <div class="accessibility-panel-head">
+            <strong data-i18n="accessibility">Accesibilidad</strong>
+            <button type="button" id="btnCerrarAccesibilidad" aria-label="Cerrar opciones de accesibilidad"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <button type="button" id="btnTextoGrande"><i class="fa-solid fa-text-height"></i> <span data-i18n="largeText">Texto grande</span></button>
+          <button type="button" id="btnAltoContraste"><i class="fa-solid fa-circle-half-stroke"></i> <span data-i18n="highContrast">Alto contraste</span></button>
+          <button type="button" id="btnEspaciado"><i class="fa-solid fa-align-justify"></i> <span data-i18n="spacing">Aumentar espaciado</span></button>
+          <button type="button" id="btnDaltonismo" aria-expanded="false" aria-controls="panelDaltonismo"><i class="fa-solid fa-circle-half-stroke"></i> <span data-i18n="daltonism">Daltonismo</span></button>
+          <div id="panelDaltonismo" class="daltonismo-options" hidden>
+            <button type="button" data-daltonismo="protanopia">Protanopia</button>
+            <button type="button" data-daltonismo="deuteranopia">Deuteranopia</button>
+            <button type="button" data-daltonismo="tritanopia">Tritanopia</button>
+            <button type="button" data-daltonismo="normal">Desactivar filtros</button>
+          </div>
+          <button type="button" id="btnRestaurarAccesibilidad"><i class="fa-solid fa-rotate-left"></i> <span data-i18n="restore">Restaurar</span></button>
+        </div>
       </div>
     </div>
   </nav>
@@ -168,13 +205,19 @@
           <span>Al amparo de la ley N° 29733, Ley de Protección de Datos Personales.</span></p>
       </div>
 
-      <h2 class="sec-title">Búsqueda de Expedientes</h2>
+      <h2 class="sec-title" data-i18n="searchTitle">Búsqueda de Expedientes</h2>
       <p id="dbStatus" class="data-status" role="status" aria-live="polite">Cargando expedientes y documentos locales...</p>
 
       <form id="formBusq" class="search-card" autocomplete="off" novalidate>
         <div class="search-tabs">
-          <button type="button" class="stab on" data-t="filtros" id="btn-filtros">Por filtros</button>
-          <button type="button" class="stab" data-t="codigo" id="btn-codigo">Por Código de Expediente</button>
+          <button type="button" class="stab on" data-t="filtros" id="btn-filtros" data-i18n="byFilters">Por filtros</button>
+          <button type="button" class="stab" data-t="codigo" id="btn-codigo" data-i18n="byCode">Por Código de Expediente</button>
+        </div>
+        <div class="search-autofill-row">
+          <button type="button" id="btnAutocompletarBusqueda" class="btn-autocompletar-busqueda">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span data-i18n="autofill">AUTOCOMPLETAR</span>
+          </button>
         </div>
 
         <!-- POR FILTROS -->
@@ -235,7 +278,7 @@
             <input id="captcha-input" class="cap-in" maxlength="4" autocomplete="off" aria-label="Código de verificación">
           </div>
           <p id="busqMsg" class="msg" role="alert"></p>
-          <button class="btn-consultar" type="submit" id="btnConsultar">Consultar</button>
+          <button class="btn-consultar" type="submit" id="btnConsultar" data-i18n="consult">Consultar</button>
         </div>
       </form>
     </div>

@@ -54,14 +54,37 @@ const DEFAULT_USERS = {
 const users = () => ({ ...DEFAULT_USERS, ...JSON.parse(localStorage.getItem("sice_users") || "{}") });
 let registro = false, finSesion = 0, timer = null;
 
+// Relleno automático para el acceso de demostración.
+$("lUser").value = "usuario";
+$("lPass").value = "123456";
+
+$("btnAutocompletar").onclick = () => {
+  if (registro) $("btnModo").click();
+  $("lUser").value = "usuario";
+  $("lPass").value = "123456";
+  $("loginMsg").className = "msg ok";
+  $("loginMsg").textContent = "Credenciales de demostración cargadas.";
+  $("lUser").dispatchEvent(new Event("input", { bubbles: true }));
+  $("lPass").dispatchEvent(new Event("input", { bubbles: true }));
+  $("btnLogin").focus();
+};
+
 $("btnModo").onclick = () => {
   registro = !registro;
-  $("tituloLogin").textContent = registro ? "Crear cuenta" : "Iniciar Sesión";
+  $("btnLogin").dataset.registro = registro ? "1" : "0";
+  const idiomaActual = $("selectorIdioma").value;
+  const traducciones = TRADUCCIONES_UI[idiomaActual];
+  $("tituloLogin").textContent = registro
+    ? (idiomaActual === "es" ? "Crear cuenta" : idiomaActual === "qu" ? "Cuenta ruwaq" : "Cuenta lurayaña")
+    : (traducciones?.loginTitle || "Iniciar Sesión");
   $("btnLogin").innerHTML = registro
-    ? '<span>REGISTRARME</span><i class="fa-solid fa-user-plus"></i>'
-    : '<span>INGRESAR AL SISTEMA</span><i class="fa-solid fa-arrow-right-to-bracket"></i>';
-  $("btnModo").textContent = registro ? "Ya tengo cuenta" : "¿No tienes cuenta? Regístrate";
+    ? `<span>${idiomaActual === "es" ? "REGISTRARME" : idiomaActual === "qu" ? "QILLQAKUY" : "QILLQT'AYAÑA"}</span><i class="fa-solid fa-user-plus"></i>`
+    : `<span>${traducciones?.loginButton || "INGRESAR AL SISTEMA"}</span><i class="fa-solid fa-arrow-right-to-bracket"></i>`;
+  $("btnModo").textContent = registro
+    ? (idiomaActual === "es" ? "Ya tengo cuenta" : idiomaActual === "qu" ? "Ñuqap cuentasmi kachkan" : "Cuentajan utjitu")
+    : (traducciones?.registerLink || "¿No tienes cuenta? Regístrate");
   $("lblNombre").hidden = !registro;
+  $("btnAutocompletar").hidden = registro;
   $("loginMsg").textContent = "";
 };
 
@@ -100,6 +123,215 @@ function entrar(usuario, nombre) {
 }
 function salir() { sessionStorage.removeItem("sice_sesion"); location.reload(); }
 $("btnSalir").onclick = salir;
+
+/* ===================== IDIOMA Y ACCESIBILIDAD ===================== */
+const LABELS_IDIOMA = {
+  es: "Español",
+  qu: "Quechua",
+  ay: "Aymara"
+};
+
+const TRADUCCIONES_UI = {
+  qu: {
+    brandTitle: "PERÚ PAÍS JUSTICIA WASI",
+    brandMotto: "Kusisqa justicia, allin llaqta",
+    loginTitle: "Yaykuy",
+    loginSubtitle: "Qillqakunata yaykuspa",
+    user: "Runa",
+    password: "Chimpu",
+    fullName: "Hunt'a suti",
+    loginButton: "SISTEMAMAN YAYKUY",
+    autofill: "KIKIN HUNT'ACHAY",
+    registerLink: "¿Manachu cuentayki kapun? Qillqakuy",
+    warningLink: "Yachachiy yuyachiyta qhaway",
+    home: "Qallariy",
+    tutorials: "Yachachiq qawarinakuna",
+    faq: "Tapukuykuna",
+    management: "Kamachiy",
+    accessibility: "Chaskiy",
+    largeText: "Hatun qillqa",
+    highContrast: "Sumaqllaña",
+    spacing: "Ch'usaqta hatunyachiy",
+    daltonism: "Llimpi pantaq",
+    restore: "Kutichiy",
+    searchTitle: "Expedientekunata Maskay",
+    byFilters: "Akllanakuwan",
+    byCode: "Expediente chimpuwan",
+    consult: "Maskay"
+  },
+  ay: {
+    brandTitle: "PERU JURISDICCIÓN UTAWJA",
+    brandMotto: "Sum jach'a, suma marka",
+    loginTitle: "Qillqatanaka",
+    loginSubtitle: "Qillqatanaka apnaqaña",
+    user: "Apnaqiri",
+    password: "Ch'imi",
+    fullName: "Taqpacha suti",
+    loginButton: "SISTEMARU MANTAÑANI",
+    autofill: "AUTOMATICO PHUQHACHANA",
+    registerLink: "¿Janit cuentasïti? Qillqt'ayaña",
+    warningLink: "Yatiyawi amuyt'aña",
+    home: "Qalltawi",
+    tutorials: "Yatiqañ qhananchäwi",
+    faq: "Tapunak",
+    management: "Irpirawi",
+    accessibility: "Jani jark'aqaña",
+    largeText: "Jach'a qillqata",
+    highContrast: "Ch'amaka uñana",
+    spacing: "Jayarst'a",
+    daltonism: "Sami panti",
+    restore: "Wasitat kutxataña",
+    searchTitle: "Expedientenkisa thaqhaña",
+    byFilters: "Ajllinakampi",
+    byCode: "Expediente jakhuwimpi",
+    consult: "Thaqhaña"
+  }
+};
+
+function aplicarIdioma(idioma) {
+  const traducciones = TRADUCCIONES_UI[idioma];
+  document.documentElement.lang = idioma;
+  document.querySelectorAll("[data-i18n]").forEach(elemento => {
+    if (!elemento.dataset.i18nOriginal) elemento.dataset.i18nOriginal = elemento.textContent;
+  });
+  document.querySelectorAll("[data-i18n]").forEach(elemento => {
+    if (traducciones?.[elemento.dataset.i18n]) {
+      elemento.textContent = traducciones[elemento.dataset.i18n];
+    }
+  });
+  if (idioma === "es") {
+    document.querySelectorAll("[data-i18n]").forEach(elemento => {
+      elemento.textContent = elemento.dataset.i18nOriginal;
+    });
+  }
+  const mapaIds = {
+    tituloLogin: ["loginTitle"],
+    btnLogin: ["loginButton"],
+    btnAutocompletar: ["autofill"],
+    btnModo: ["registerLink"],
+    btnConsultar: ["consult"]
+  };
+  Object.entries(mapaIds).forEach(([id, [clave]]) => {
+    const elemento = $(id);
+    if (!elemento) return;
+    if (idioma === "es") return;
+    const traduccion = traducciones?.[clave];
+    if (!traduccion) return;
+    if (id === "btnLogin") elemento.innerHTML = `<span>${traduccion}</span><i class="fa-solid fa-arrow-right-to-bracket"></i>`;
+    else if (id === "btnAutocompletar") elemento.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>${traduccion}</span>`;
+    else if (elemento.children.length) {
+      const span = elemento.querySelector("span");
+      if (span) span.textContent = traduccion;
+    } else elemento.textContent = traduccion;
+  });
+  if (idioma === "es") {
+    if ($("btnLogin").dataset.registro === "1") {
+      $("btnLogin").innerHTML = '<span>REGISTRARME</span><i class="fa-solid fa-user-plus"></i>';
+    } else {
+      $("btnLogin").innerHTML = '<span>INGRESAR AL SISTEMA</span><i class="fa-solid fa-arrow-right-to-bracket"></i>';
+    }
+  }
+  localStorage.setItem("sice_idioma", idioma);
+}
+
+function configurarAccesibilidad() {
+  const panel = $("panelAccesibilidad");
+  $("btnAccesibilidad").onclick = () => {
+    panel.hidden = !panel.hidden;
+    $("btnAccesibilidad").setAttribute("aria-expanded", String(!panel.hidden));
+  };
+  $("btnCerrarAccesibilidad").onclick = () => {
+    panel.hidden = true;
+    $("btnAccesibilidad").setAttribute("aria-expanded", "false");
+  };
+
+  $("btnDaltonismo").onclick = () => {
+    $("panelDaltonismo").hidden = !$("panelDaltonismo").hidden;
+    $("btnDaltonismo").setAttribute("aria-expanded", String(!$("panelDaltonismo").hidden));
+  };
+
+  const modosDaltonismo = ["protanopia", "deuteranopia", "tritanopia"];
+  document.querySelectorAll("[data-daltonismo]").forEach(boton => {
+    boton.onclick = () => {
+      const modo = boton.dataset.daltonismo;
+      document.body.classList.remove(
+        "daltonismo-protanopia",
+        "daltonismo-deuteranopia",
+        "daltonismo-tritanopia"
+      );
+      document.querySelectorAll("[data-daltonismo]").forEach(b => b.classList.remove("active"));
+
+      if (modosDaltonismo.includes(modo)) {
+        document.body.classList.add("daltonismo-" + modo);
+        boton.classList.add("active");
+        $("btnDaltonismo").classList.add("active");
+        localStorage.setItem("sice_daltonismo", modo);
+        toast("Modo daltonismo aplicado: " + modo);
+      } else {
+        $("btnDaltonismo").classList.remove("active");
+        localStorage.removeItem("sice_daltonismo");
+        toast("Filtro de daltonismo desactivado");
+      }
+    };
+  });
+
+  const modoDaltonismoGuardado = localStorage.getItem("sice_daltonismo");
+  if (modosDaltonismo.includes(modoDaltonismoGuardado)) {
+    document.body.classList.add("daltonismo-" + modoDaltonismoGuardado);
+    $("btnDaltonismo").classList.add("active");
+    const botonGuardado = document.querySelector('[data-daltonismo="' + modoDaltonismoGuardado + '"]');
+    if (botonGuardado) botonGuardado.classList.add("active");
+  }
+
+  const opciones = [
+    ["btnTextoGrande", "texto-grande"],
+    ["btnAltoContraste", "alto-contraste"],
+    ["btnEspaciado", "espaciado-lectura"]
+  ];
+  opciones.forEach(([id, clase]) => {
+    $(id).onclick = () => {
+      document.body.classList.toggle(clase);
+      $(id).classList.toggle("active", document.body.classList.contains(clase));
+      localStorage.setItem("sice_accesibilidad_" + clase, document.body.classList.contains(clase) ? "1" : "0");
+    };
+  });
+  opciones.forEach(([id, clase]) => {
+    if (localStorage.getItem("sice_accesibilidad_" + clase) === "1") {
+      document.body.classList.add(clase);
+      $(id).classList.add("active");
+    }
+  });
+
+  $("btnRestaurarAccesibilidad").onclick = () => {
+    opciones.forEach(([id, clase]) => {
+      document.body.classList.remove(clase);
+      $(id).classList.remove("active");
+      localStorage.removeItem("sice_accesibilidad_" + clase);
+    });
+    document.body.classList.remove("daltonismo-protanopia", "daltonismo-deuteranopia", "daltonismo-tritanopia");
+    document.querySelectorAll("[data-daltonismo]").forEach(b => b.classList.remove("active"));
+    localStorage.removeItem("sice_daltonismo");
+    $("panelDaltonismo").hidden = true;
+    $("btnDaltonismo").setAttribute("aria-expanded", "false");
+    $("btnDaltonismo").classList.remove("active");
+    toast("Preferencias de accesibilidad restauradas");
+  };
+
+  $("selectorIdioma").onchange = e => {
+    const idioma = e.target.value;
+    aplicarIdioma(idioma);
+    toast(`Idioma cambiado a ${LABELS_IDIOMA[idioma]}`);
+  };
+  const idiomaGuardado = localStorage.getItem("sice_idioma");
+  if (idiomaGuardado && LABELS_IDIOMA[idiomaGuardado]) {
+    $("selectorIdioma").value = idiomaGuardado;
+    aplicarIdioma(idiomaGuardado);
+  } else {
+    aplicarIdioma("es");
+  }
+}
+
+configurarAccesibilidad();
 
 function reloj() {
   const n = new Date(), p = v => String(v).padStart(2, "0"), r = Math.max(0, finSesion - Date.now());
@@ -159,15 +391,6 @@ $("fAnio").innerHTML = "<option value=''>--SELECCIONAR--</option>" +
   Array.from({ length: 15 }, (_, i) => 2026 - i).map(a => `<option>${a}</option>`).join("");
 
 const codigoExpedientePrecargado = "00957-2022-0-2111-JR-LA-01";
-$("fDist").value = "PUNO";
-$("fInst").value = "JUZGADO DE TRABAJO";
-$("fEsp").value = "LABORAL";
-$("fAnio").value = "2022";
-$("fNum").value = "00957";
-$("fParte").value = "CHOQUE TICONA";
-codigoExpedientePrecargado.split("-").forEach((parte, i) => {
-  $("c" + (i + 1)).value = parte;
-});
 
 let modo = "filtros";
 document.querySelectorAll(".stab").forEach(t => t.onclick = () => {
@@ -177,6 +400,29 @@ document.querySelectorAll(".stab").forEach(t => t.onclick = () => {
   $("tab-codigo").hidden = modo !== "codigo";
   $("busqMsg").textContent = "";
 });
+
+$("btnAutocompletarBusqueda").onclick = () => {
+  modo = "filtros";
+  document.querySelectorAll(".stab").forEach(b => b.classList.toggle("on", b.dataset.t === "filtros"));
+  $("tab-filtros").hidden = false;
+  $("tab-codigo").hidden = true;
+
+  $("fDist").value = "PUNO";
+  $("fInst").value = "JUZGADO DE TRABAJO";
+  $("fEsp").value = "LABORAL";
+  $("fAnio").value = "2022";
+  $("fNum").value = "00957";
+  $("fParte").value = "CHOQUE TICONA";
+  codigoExpedientePrecargado.split("-").forEach((parte, i) => {
+    $("c" + (i + 1)).value = parte;
+  });
+
+  $("captcha-input").value = capTxt;
+  $("captcha-input").classList.remove("err");
+  $("busqMsg").className = "msg ok";
+  $("busqMsg").textContent = "Formulario, código de expediente y CAPTCHA completados.";
+  toast("Todos los datos de demostración fueron cargados");
+};
 
 // Autoavance entre casillas del código
 for (let i = 1; i <= 7; i++) {
