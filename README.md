@@ -76,3 +76,7 @@ ni guardar de forma segura la clave de OpenAI. Por seguridad, la clave solo se
 usa en el servidor local mediante `.env`. En Pages el chat conserva su interfaz
 y las respuestas locales básicas, pero no puede conectar directamente a la API
 hasta contar con un backend HTTPS protegido.
+
+PIBbLE también puede leer sus respuestas en voz alta y dictar preguntas desde
+el micrófono en navegadores compatibles. El dictado requiere permiso de acceso
+al micrófono; si el navegador no ofrece reconocimiento de voz, el botón se oculta.

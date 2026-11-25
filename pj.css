@@ -901,12 +901,20 @@ body.daltonismo-tritanopia{filter:sepia(.1) saturate(.75) hue-rotate(180deg)}
 .im .av img{width:32px;height:32px;border-radius:50%;object-fit:cover}
 .im .bb{background:#fff;border:1px solid var(--rose);padding:14px 16px;border-radius:16px;border-top-left-radius:0;max-width:78%;font-size:13px;color:var(--gray-800);line-height:1.5;white-space:pre-line}
 .im.u .bb{background:var(--wine);color:#fff;border-color:var(--wine);border-radius:16px;border-top-right-radius:0}
+.im-content{display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0}
+.im-content .bb{flex:1;max-width:none;min-width:0}
+.ia-speak-btn{width:34px;height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--rose);border-radius:50%;background:#fff;color:var(--wine);transition:.2s}
+.ia-speak-btn:hover,.ia-speak-btn.is-speaking{background:var(--wine);color:#fff}
+.ia-speak-btn:focus-visible,.ia-voice-btn:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
 .im .typing{color:var(--gray-400);font-style:italic}
-.ia-input{padding:20px 24px;border-top:1px solid var(--gray-200);background:#fff;display:flex;gap:12px}
+.ia-input{padding:20px 24px;border-top:1px solid var(--gray-200);background:#fff;display:flex;gap:12px;align-items:center}
 .ia-input input{flex:1;border:1px solid var(--rose);border-radius:16px;padding:12px 16px;font-size:13px;outline:none}
 .ia-input input:focus{box-shadow:0 0 0 2px var(--wine)}
 .ia-input button{background:var(--wine);color:#fff;padding:12px 24px;border-radius:16px;font-size:14px;transition:.2s}
 .ia-input button:hover{background:var(--wine-d)}
+.ia-input .ia-voice-btn{flex:0 0 44px;padding:12px 0}
+.ia-input .ia-voice-btn[hidden]{display:none}
+.ia-input .ia-voice-btn.is-listening{background:#b91c1c;animation:pulse 1.2s infinite}
 
 /* ---------- RESPONSIVE ---------- */
 @media (max-width:1024px){

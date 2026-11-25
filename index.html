@@ -486,8 +486,11 @@
     </div>
     <div id="iaChat" class="ia-chat"></div>
     <form id="iaForm" class="ia-input">
+      <button type="button" class="ia-voice-btn" id="iaVoiceBtn" title="Dictar pregunta" aria-label="Dictar pregunta">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
       <input id="iaInput" placeholder="Escribe tu pregunta..." autocomplete="off">
-      <button type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+      <button type="submit" aria-label="Enviar mensaje"><i class="fa-solid fa-paper-plane"></i></button>
     </form>
   </div>
 </div>
@@ -495,6 +498,6 @@
 <script src="firebase-config.js?v=20261125-1"></script>
 <script src="pdf_storage.js?v=20261125-1"></script>
 <script src="app.js?v=20261125-1"></script>
-<script src="ui.js?v=20261125-6"></script>
+<script src="ui.js?v=20261125-7"></script>
 </body>
 </html>

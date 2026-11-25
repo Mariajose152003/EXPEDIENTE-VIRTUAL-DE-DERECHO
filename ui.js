@@ -1320,6 +1320,8 @@ function abrirIA() {
   setTimeout(() => $("iaInput").focus(), 50);
 }
 function cerrarIA() {
+  detenerVozIA();
+  if (reconocimientoIAActivo && reconocimientoIA) reconocimientoIA.stop();
   $("iaModal").hidden = true;
   document.body.classList.remove("chat-open");
 }
@@ -1330,18 +1332,165 @@ $("aiAssistantBtn").addEventListener("click", e => {
 $("btnCerrarIA").onclick = cerrarIA;
 $("iaModal").addEventListener("click", e => { if (e.target === $("iaModal")) cerrarIA(); });
 
-function msgIA(t, user) {
+let utteranceIA = null;
+let botonVozIA = null;
+let reconocimientoIA = null;
+let reconocimientoIAActivo = false;
+
+function actualizarBotonVozIA(button, activo) {
+  button.innerHTML = activo ? '<i class="fa-solid fa-stop"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+  button.classList.toggle("is-speaking", activo);
+  button.title = activo ? "Detener lectura" : "Escuchar respuesta";
+  button.setAttribute("aria-label", button.title);
+  button.setAttribute("aria-pressed", String(activo));
+}
+
+function detenerVozIA() {
+  const vozAnterior = utteranceIA;
+  utteranceIA = null;
+  if (botonVozIA) actualizarBotonVozIA(botonVozIA, false);
+  botonVozIA = null;
+  if (vozAnterior && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function escucharMensajeIA(texto, button) {
+  const synthesis = window.speechSynthesis;
+  if (!synthesis || typeof window.SpeechSynthesisUtterance !== "function") {
+    toast("Tu navegador no admite lectura en voz alta.");
+    return;
+  }
+  if (botonVozIA === button && (synthesis.speaking || synthesis.pending)) {
+    detenerVozIA();
+    return;
+  }
+  detenerVozIA();
+
+  const idioma = document.documentElement.lang || "es";
+  const prefijoIdioma = idioma === "qu" ? "qu" : idioma === "ay" ? "ay" : "es";
+  const voces = synthesis.getVoices();
+  const voz = voces.find(item => item.lang.toLowerCase().startsWith(prefijoIdioma));
+  const utterance = new window.SpeechSynthesisUtterance(texto);
+  if (voz) {
+    utterance.voice = voz;
+    utterance.lang = voz.lang;
+  } else {
+    utterance.lang = "es-PE";
+    if (prefijoIdioma !== "es" && voces.length) {
+      toast("No hay una voz disponible para este idioma; se usará español.");
+    }
+  }
+
+  utteranceIA = utterance;
+  botonVozIA = button;
+  actualizarBotonVozIA(button, true);
+  utterance.onend = () => {
+    if (utteranceIA === utterance) detenerVozIA();
+  };
+  utterance.onerror = event => {
+    if (utteranceIA !== utterance) return;
+    detenerVozIA();
+    if (event.error !== "canceled" && event.error !== "interrupted") {
+      toast("No se pudo reproducir la respuesta.");
+    }
+  };
+  synthesis.speak(utterance);
+}
+
+function configurarVozChatIA() {
+  const button = $("iaVoiceBtn");
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognitionAPI) {
+    button.hidden = true;
+    return;
+  }
+
+  try {
+    reconocimientoIA = new SpeechRecognitionAPI();
+  } catch (error) {
+    console.error("No se pudo preparar el reconocimiento de voz:", error);
+    button.hidden = true;
+    return;
+  }
+  reconocimientoIA.continuous = false;
+  reconocimientoIA.interimResults = false;
+  reconocimientoIA.maxAlternatives = 1;
+  reconocimientoIA.onstart = () => {
+    reconocimientoIAActivo = true;
+    button.classList.add("is-listening");
+    button.innerHTML = '<i class="fa-solid fa-stop"></i>';
+    button.title = "Detener dictado";
+    button.setAttribute("aria-label", button.title);
+    button.setAttribute("aria-pressed", "true");
+  };
+  reconocimientoIA.onresult = event => {
+    const resultado = event.results && event.results[0] && event.results[0][0];
+    const texto = resultado ? resultado.transcript.trim() : "";
+    if (texto) {
+      $("iaInput").value = texto;
+      $("iaInput").focus();
+    }
+  };
+  reconocimientoIA.onerror = event => {
+    console.warn("No se pudo usar el reconocimiento de voz:", event.error);
+    const mensajes = {
+      "not-allowed": "Permite el acceso al micrófono para dictar.",
+      "audio-capture": "No se encontró un micrófono disponible.",
+      "no-speech": "No se detectó voz. Inténtalo otra vez."
+    };
+    if (event.error !== "aborted") toast(mensajes[event.error] || "No se pudo reconocer la voz.");
+  };
+  reconocimientoIA.onend = () => {
+    reconocimientoIAActivo = false;
+    button.classList.remove("is-listening");
+    button.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+    button.title = "Dictar pregunta";
+    button.setAttribute("aria-label", button.title);
+    button.setAttribute("aria-pressed", "false");
+  };
+  button.onclick = () => {
+    if (reconocimientoIAActivo) {
+      reconocimientoIA.stop();
+      return;
+    }
+    reconocimientoIA.lang = document.documentElement.lang === "qu"
+      ? "qu-PE"
+      : document.documentElement.lang === "ay" ? "ay-BO" : "es-PE";
+    try {
+      reconocimientoIA.start();
+    } catch (error) {
+      console.error("No se pudo iniciar el reconocimiento de voz:", error);
+      toast("No se pudo iniciar el micrófono. Inténtalo otra vez.");
+    }
+  };
+}
+
+function msgIA(t, user, enableVoice = true) {
   const d = document.createElement("div");
   d.className = "im" + (user ? " u" : "");
   const av = user
     ? `<div class="av"><i class="fa-solid fa-user"></i></div>`
     : `<div class="av"><img src="img/pibble.svg" alt="PIBbLE"></div>`;
-  d.innerHTML = user ? `<div class="bb"></div>${av}` : `${av}<div class="bb"></div>`;
-  d.querySelector(".bb").textContent = t;
+  d.innerHTML = user
+    ? `<div class="bb"></div>${av}`
+    : `${av}<div class="im-content"><div class="bb"></div></div>`;
+  const bubble = d.querySelector(".bb");
+  bubble.textContent = t;
+  if (!user && enableVoice) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "ia-speak-btn";
+    button.title = "Escuchar respuesta";
+    button.setAttribute("aria-label", button.title);
+    button.setAttribute("aria-pressed", "false");
+    button.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+    button.onclick = () => escucharMensajeIA(bubble.textContent, button);
+    d.querySelector(".im-content").append(button);
+  }
   $("iaChat").append(d);
   $("iaChat").scrollTop = $("iaChat").scrollHeight;
   return d;
 }
+configurarVozChatIA();
 
 function generarRespuesta(q) {
   const n = " " + norm(q).toLowerCase() + " ", x = expActual;
@@ -1491,7 +1640,7 @@ async function consultarChatGPT(pregunta) {
 
 function responderIA(q, silencioso) {
   if (!silencioso) msgIA(q, true);
-  const t = msgIA("Escribiendo...");
+  const t = msgIA("Escribiendo...", false, false);
   t.querySelector(".bb").classList.add("typing");
   consultarChatGPT(q).then(respuesta => {
     t.remove();
