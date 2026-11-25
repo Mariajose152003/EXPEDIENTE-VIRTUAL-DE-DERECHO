@@ -41,33 +41,29 @@ if ($("btnTogglePass")) {
   };
 }
 /* ===================== AUTENTICACIÓN ===================== */
-const sha = async t => [...new Uint8Array(
-  await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t))
-)].map(b => b.toString(16).padStart(2, "0")).join("");
-
-const HASH_123456 = "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92"; // sha256("123456")
-const DEFAULT_USERS = {
-  usuario: { h: HASH_123456, nombre: "Usuario Judicial" },
-  admin:   { h: HASH_123456, nombre: "Administrador del Sistema" },
-  harry:   { h: HASH_123456, nombre: "Administrador del Sistema" }
-};
-const users = () => ({ ...DEFAULT_USERS, ...JSON.parse(localStorage.getItem("sice_users") || "{}") });
 let registro = false, finSesion = 0, timer = null;
-
-// Relleno automático para el acceso de demostración.
-$("lUser").value = "usuario";
-$("lPass").value = "123456";
-
-$("btnAutocompletar").onclick = () => {
-  if (registro) $("btnModo").click();
-  $("lUser").value = "usuario";
-  $("lPass").value = "123456";
-  $("loginMsg").className = "msg ok";
-  $("loginMsg").textContent = "Credenciales de demostración cargadas.";
-  $("lUser").dispatchEvent(new Event("input", { bubbles: true }));
-  $("lPass").dispatchEvent(new Event("input", { bubbles: true }));
-  $("btnLogin").focus();
-};
+const firebaseConfig = window.FIREBASE_CONFIG;
+const firebaseConfigured = !!(
+  window.firebase &&
+  firebaseConfig &&
+  firebaseConfig.apiKey &&
+  !firebaseConfig.apiKey.startsWith("REPLACE_") &&
+  firebaseConfig.projectId &&
+  !firebaseConfig.projectId.startsWith("YOUR_") &&
+  firebaseConfig.appId &&
+  !firebaseConfig.appId.startsWith("REPLACE_")
+);
+let firebaseAuth = null;
+let firebaseAuthReady = Promise.resolve();
+if (firebaseConfigured) {
+  try {
+    const firebaseApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+    firebaseAuth = firebaseApp.auth();
+    firebaseAuthReady = firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+  } catch (error) {
+    console.error("No se pudo inicializar Firebase Authentication:", error);
+  }
+}
 
 $("btnModo").onclick = () => {
   registro = !registro;
@@ -83,46 +79,102 @@ $("btnModo").onclick = () => {
   $("btnModo").textContent = registro
     ? (idiomaActual === "es" ? "Ya tengo cuenta" : idiomaActual === "qu" ? "Ñuqap cuentasmi kachkan" : "Cuentajan utjitu")
     : (traducciones?.registerLink || "¿No tienes cuenta? Regístrate");
+  $("lPass").autocomplete = registro ? "new-password" : "current-password";
   $("lblNombre").hidden = !registro;
-  $("btnAutocompletar").hidden = registro;
   $("loginMsg").textContent = "";
 };
 
 $("formLogin").onsubmit = async e => {
   e.preventDefault();
-  const u = $("lUser").value.trim().toLowerCase(), h = await sha($("lPass").value), db = users(), m = $("loginMsg");
-  if (registro) {
-    const local = JSON.parse(localStorage.getItem("sice_users") || "{}");
-    if (db[u]) { m.className = "msg"; return m.textContent = "Ese usuario ya existe."; }
-    local[u] = { h, nombre: $("lNombre").value.trim() || u };
-    localStorage.setItem("sice_users", JSON.stringify(local));
-    $("btnModo").click();
-    m.className = "msg ok"; m.textContent = "¡Cuenta creada con éxito! Ya puedes ingresar.";
-  } else {
-    if (!db[u] || db[u].h !== h) {
-      m.className = "msg"; m.textContent = "Usuario o contraseña incorrectos.";
-      $("formLogin").classList.remove("shake"); void $("formLogin").offsetWidth; $("formLogin").classList.add("shake");
-      return;
+  const mensaje = $("loginMsg");
+  if (!firebaseAuth) {
+    mensaje.className = "msg";
+    mensaje.textContent = "Falta configurar Firebase en firebase-config.js. Revisa las instrucciones del proyecto.";
+    return;
+  }
+
+  const boton = $("btnLogin");
+  const email = $("lUser").value.trim().toLowerCase();
+  const password = $("lPass").value;
+  boton.disabled = true;
+  mensaje.textContent = "";
+  try {
+    await firebaseAuthReady;
+    if (registro) {
+      const credencial = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+      const nombre = $("lNombre").value.trim() || email.split("@")[0];
+      await credencial.user.updateProfile({ displayName: nombre });
+      entrar(nombre);
+    } else {
+      const credencial = await firebaseAuth.signInWithEmailAndPassword(email, password);
+      entrar(credencial.user.displayName || credencial.user.email);
     }
-    sessionStorage.setItem("sice_sesion", u);
-    entrar(u, db[u].nombre);
+  } catch (error) {
+    mensaje.className = "msg";
+    mensaje.textContent = mensajeAutenticacion(error);
+    $("formLogin").classList.remove("shake");
+    void $("formLogin").offsetWidth;
+    $("formLogin").classList.add("shake");
+  } finally {
+    boton.disabled = false;
   }
 };
 
-function entrar(usuario, nombre) {
+function mensajeAutenticacion(error) {
+  const mensajes = {
+    "auth/email-already-in-use": "Ese correo ya tiene una cuenta.",
+    "auth/invalid-email": "Escribe un correo electrónico válido.",
+    "auth/weak-password": "La contraseña debe tener al menos 6 caracteres.",
+    "auth/user-not-found": "No existe una cuenta con ese correo.",
+    "auth/wrong-password": "Correo o contraseña incorrectos.",
+    "auth/invalid-credential": "Correo o contraseña incorrectos.",
+    "auth/operation-not-allowed": "Activa Email/Password en Firebase Authentication.",
+    "auth/network-request-failed": "No se pudo conectar con Firebase. Revisa tu conexión.",
+    "auth/too-many-requests": "Demasiados intentos. Espera un momento y vuelve a probar."
+  };
+  console.error("Error de autenticación Firebase:", error);
+  return mensajes[error.code] || "No se pudo completar el acceso. Revisa la configuración de Firebase.";
+}
+
+function entrar(nombre) {
   if (modalAdv) modalAdv.classList.add("adv-hidden");
   document.body.classList.add("app-active");
   $("vistaLogin").hidden = true;
   $("vistaApp").hidden = false;
   $("usuario").textContent = nombre;
-  $("btnAdmin").hidden = !(usuario === ADMIN_USER || usuario === "admin");
+  $("btnAdmin").hidden = true;
+  if (firebaseAuth?.currentUser) {
+    firebaseAuth.currentUser.getIdTokenResult()
+      .then(token => { $("btnAdmin").hidden = token.claims.admin !== true; })
+      .catch(error => console.error("No se pudieron comprobar los permisos administrativos:", error));
+  }
   finSesion = Date.now() + 15 * 60000;
   clearInterval(timer); timer = setInterval(reloj, 1000); reloj();
   generateCaptcha();
   mostrarVista("busqueda");
 }
-function salir() { sessionStorage.removeItem("sice_sesion"); location.reload(); }
+async function salir() {
+  if (firebaseAuth) {
+    try {
+      await firebaseAuth.signOut();
+    } catch (error) {
+      console.error("No se pudo cerrar la sesión de Firebase:", error);
+      toast("No se pudo cerrar la sesión. Inténtalo nuevamente.");
+      return;
+    }
+  }
+  location.reload();
+}
 $("btnSalir").onclick = salir;
+
+if (firebaseAuth) {
+  firebaseAuth.onAuthStateChanged(user => {
+    if (user) entrar(user.displayName || user.email || "Usuario");
+  }, error => {
+    console.error("No se pudo comprobar la sesión de Firebase:", error);
+    $("loginMsg").textContent = "No se pudo comprobar la sesión. Recarga la página.";
+  });
+}
 
 /* ===================== IDIOMA Y ACCESIBILIDAD ===================== */
 const LABELS_IDIOMA = {
@@ -219,7 +271,7 @@ const TRADUCCIONES_UI = {
     brandMotto: "Kusisqa justicia, allin llaqta",
     loginTitle: "Yaykuy",
     loginSubtitle: "Qillqakunata yaykuspa",
-    user: "Runa",
+    email: "Correo electrónico",
     password: "Chimpu",
     fullName: "Hunt'a suti",
     loginButton: "SISTEMAMAN YAYKUY",
@@ -246,7 +298,7 @@ const TRADUCCIONES_UI = {
     brandMotto: "Sum jach'a, suma marka",
     loginTitle: "Qillqatanaka",
     loginSubtitle: "Qillqatanaka apnaqaña",
-    user: "Apnaqiri",
+    email: "Correo electrónico",
     password: "Ch'imi",
     fullName: "Taqpacha suti",
     loginButton: "SISTEMARU MANTAÑANI",
@@ -290,7 +342,6 @@ function aplicarIdioma(idioma) {
   const mapaIds = {
     tituloLogin: ["loginTitle"],
     btnLogin: ["loginButton"],
-    btnAutocompletar: ["autofill"],
     btnModo: ["registerLink"],
     btnConsultar: ["consult"]
   };
@@ -301,7 +352,6 @@ function aplicarIdioma(idioma) {
     const traduccion = traducciones?.[clave];
     if (!traduccion) return;
     if (id === "btnLogin") elemento.innerHTML = `<span>${traduccion}</span><i class="fa-solid fa-arrow-right-to-bracket"></i>`;
-    else if (id === "btnAutocompletar") elemento.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>${traduccion}</span>`;
     else if (elemento.children.length) {
       const span = elemento.querySelector("span");
       if (span) span.textContent = traduccion;
@@ -1496,7 +1546,3 @@ document.addEventListener("keydown", e => {
 /* ===================== INICIO ===================== */
 inicializarCargaCarpeta();
 cargaInicialDatos = cargarDB();
-(() => {
-  const s = sessionStorage.getItem("sice_sesion"), db = users();
-  if (s && db[s]) entrar(s, db[s].nombre);
-})();

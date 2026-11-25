@@ -6,6 +6,7 @@
 <title>SICE - Módulo de Gestión y Administración de Expedientes</title>
 <link rel="stylesheet" href="styles.css">
 <style>
+body.admin-page { visibility: hidden; }
 /* Estilos específicos del Dashboard Administrativo Black & Pink */
 .admin-page {
   background-color: var(--bg-deep);
@@ -622,7 +623,9 @@
     </div>
   </div>
 
-  <script src="pdf_storage.js"></script>
-  <script src="admin.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js?v=20261125-1"></script>
+  <script src="firebase-admin-guard.js?v=20261125-1"></script>
 </body>
 </html>

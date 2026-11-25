@@ -18,16 +18,15 @@ const ESTADOS = [
 
 const $ = id => document.getElementById(id);
 
-// 1. Verificación de sesión de administración
-let sesionActual = sessionStorage.getItem("sice_sesion") || "admin";
-if (!sessionStorage.getItem("sice_sesion")) {
-  sessionStorage.setItem("sice_sesion", "admin");
-}
-$("admUsuarioNom").textContent = "ADMINISTRADOR";
-
-$("btnSalirAdmin").onclick = () => {
-  sessionStorage.removeItem("sice_sesion");
-  location.href = "index.html";
+// 1. La sesión y el permiso administrativo se validan antes de cargar este archivo.
+$("btnSalirAdmin").onclick = async () => {
+  try {
+    await firebase.auth().signOut();
+    location.href = "index.html";
+  } catch (error) {
+    console.error("No se pudo cerrar la sesión de Firebase:", error);
+    alert("No se pudo cerrar la sesión. Inténtalo nuevamente.");
+  }
 };
 
 // 2. Carga y Sincronización de Base de Datos

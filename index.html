@@ -74,10 +74,10 @@
 
       <div class="login-fields">
         <label class="lg-field">
-          <span data-i18n="user">Usuario</span>
+          <span data-i18n="email">Correo electrónico</span>
           <div class="lg-input">
-            <i class="fa-solid fa-user"></i>
-            <input id="lUser" required minlength="4" placeholder="Ej. usuario" autocomplete="username">
+            <i class="fa-solid fa-envelope"></i>
+            <input id="lUser" type="email" required placeholder="correo@ejemplo.com" autocomplete="email">
           </div>
         </label>
 
@@ -103,11 +103,6 @@
         <button class="btn-login-submit" type="submit" id="btnLogin">
           <span data-i18n="loginButton">INGRESAR AL SISTEMA</span>
           <i class="fa-solid fa-arrow-right-to-bracket"></i>
-        </button>
-
-        <button class="login-quick-access" type="button" id="btnAutocompletar">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <span data-i18n="autofill">AUTOCOMPLETAR</span>
         </button>
 
         <button class="btn-link" type="button" id="btnModo" data-i18n="registerLink">¿No tienes cuenta? Regístrate</button>
@@ -497,8 +492,11 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="firebase-config.js?v=20261125-1"></script>
 <script src="pdf_storage.js?v=20261125-1"></script>
 <script src="app.js?v=20261125-1"></script>
-<script src="ui.js?v=20261125-3"></script>
+<script src="ui.js?v=20261125-4"></script>
 </body>
 </html>

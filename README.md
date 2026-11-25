@@ -42,6 +42,32 @@ desplegará automáticamente los cambios enviados a `main`.
 
 El repositorio público no debe contener expedientes reales ni PDF judiciales.
 
+## Autenticación compartida con Firebase
+
+Las cuentas de acceso se gestionan con Firebase Authentication (correo y
+contraseña), no con `localStorage`; así, cada persona puede iniciar sesión
+desde su propio navegador y la autenticación no depende del servidor local.
+No se necesita Firestore para administrar estas cuentas.
+
+Antes de publicar:
+
+1. Crea un proyecto en Firebase Console y agrega una aplicación web.
+2. En **Authentication → Sign-in method**, habilita **Email/Password**.
+3. En **Authentication → Settings → Authorized domains**, agrega
+   `mariajose152003.github.io`.
+4. Copia la configuración de la aplicación web en `firebase-config.js`
+   (campos `apiKey`, `authDomain`, `projectId` y `appId`). Esa configuración
+   web es pública; nunca pegues una clave de cuenta de servicio o privada en
+   el repositorio.
+5. Publica los cambios en GitHub Pages y prueba el registro y el inicio de
+   sesión con una cuenta nueva.
+
+El proyecto incluye valores de ejemplo en `firebase-config.js`, por lo que la
+autenticación permanecerá desactivada hasta reemplazarlos por los de tu
+proyecto. El panel de administración solo se carga para usuarios con el custom
+claim `admin`; ese permiso debe asignarse desde un entorno confiable con Firebase
+Admin SDK, nunca desde la página pública.
+
 ## PIBbLE en GitHub Pages
 
 La interfaz de PIBbLE, su imagen y el respaldo local se muestran correctamente
