@@ -44,25 +44,62 @@ if ($("btnTogglePass")) {
 let registro = false, finSesion = 0, timer = null;
 const firebaseConfig = window.FIREBASE_CONFIG;
 const firebaseConfigured = !!(
-  window.firebase &&
   firebaseConfig &&
   firebaseConfig.apiKey &&
   !firebaseConfig.apiKey.startsWith("REPLACE_") &&
+  firebaseConfig.authDomain &&
+  !firebaseConfig.authDomain.startsWith("YOUR_") &&
   firebaseConfig.projectId &&
   !firebaseConfig.projectId.startsWith("YOUR_") &&
   firebaseConfig.appId &&
   !firebaseConfig.appId.startsWith("REPLACE_")
 );
 let firebaseAuth = null;
-let firebaseAuthReady = Promise.resolve();
+let firebaseInitError = null;
+let firebaseAuthReady = Promise.resolve(null);
+
+function cargarScriptFirebase(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    const timeout = setTimeout(() => {
+      script.remove();
+      reject(new Error(`Tiempo de espera al cargar ${src}`));
+    }, 10000);
+    script.src = src;
+    script.onload = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
+    script.onerror = () => {
+      clearTimeout(timeout);
+      script.remove();
+      reject(new Error(`No se pudo cargar ${src}`));
+    };
+    document.head.appendChild(script);
+  });
+}
+
 if (firebaseConfigured) {
-  try {
-    const firebaseApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
-    firebaseAuth = firebaseApp.auth();
-    firebaseAuthReady = firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  } catch (error) {
-    console.error("No se pudo inicializar Firebase Authentication:", error);
-  }
+  firebaseAuthReady = (async () => {
+    try {
+      await cargarScriptFirebase("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+      await cargarScriptFirebase("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js");
+      const firebaseApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+      firebaseAuth = firebaseApp.auth();
+      await firebaseAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      firebaseAuth.onAuthStateChanged(user => {
+        if (user) entrar(user.displayName || user.email || "Usuario");
+      }, error => {
+        console.error("No se pudo comprobar la sesión de Firebase:", error);
+        $("loginMsg").textContent = "No se pudo comprobar la sesión. Recarga la página.";
+      });
+      return firebaseAuth;
+    } catch (error) {
+      firebaseInitError = error;
+      console.error("No se pudo inicializar Firebase Authentication:", error);
+      return null;
+    }
+  })();
 }
 
 $("btnModo").onclick = () => {
@@ -87,26 +124,31 @@ $("btnModo").onclick = () => {
 $("formLogin").onsubmit = async e => {
   e.preventDefault();
   const mensaje = $("loginMsg");
-  if (!firebaseAuth) {
-    mensaje.className = "msg";
-    mensaje.textContent = "Falta configurar Firebase en firebase-config.js. Revisa las instrucciones del proyecto.";
+  const boton = $("btnLogin");
+  mensaje.className = "msg";
+  mensaje.textContent = "Conectando con el servicio de acceso...";
+  boton.disabled = true;
+  const auth = await firebaseAuthReady;
+  if (!auth) {
+    mensaje.textContent = firebaseConfigured
+      ? "No se pudo conectar con Firebase. Revisa tu conexión y recarga la página."
+      : "Falta configurar Firebase en firebase-config.js. Revisa las instrucciones del proyecto.";
+    if (firebaseInitError) console.error("Firebase no está disponible:", firebaseInitError);
+    boton.disabled = false;
     return;
   }
 
-  const boton = $("btnLogin");
   const email = $("lUser").value.trim().toLowerCase();
   const password = $("lPass").value;
-  boton.disabled = true;
   mensaje.textContent = "";
   try {
-    await firebaseAuthReady;
     if (registro) {
-      const credencial = await firebaseAuth.createUserWithEmailAndPassword(email, password);
+      const credencial = await auth.createUserWithEmailAndPassword(email, password);
       const nombre = $("lNombre").value.trim() || email.split("@")[0];
       await credencial.user.updateProfile({ displayName: nombre });
       entrar(nombre);
     } else {
-      const credencial = await firebaseAuth.signInWithEmailAndPassword(email, password);
+      const credencial = await auth.signInWithEmailAndPassword(email, password);
       entrar(credencial.user.displayName || credencial.user.email);
     }
   } catch (error) {
@@ -166,15 +208,6 @@ async function salir() {
   location.reload();
 }
 $("btnSalir").onclick = salir;
-
-if (firebaseAuth) {
-  firebaseAuth.onAuthStateChanged(user => {
-    if (user) entrar(user.displayName || user.email || "Usuario");
-  }, error => {
-    console.error("No se pudo comprobar la sesión de Firebase:", error);
-    $("loginMsg").textContent = "No se pudo comprobar la sesión. Recarga la página.";
-  });
-}
 
 /* ===================== IDIOMA Y ACCESIBILIDAD ===================== */
 const LABELS_IDIOMA = {
