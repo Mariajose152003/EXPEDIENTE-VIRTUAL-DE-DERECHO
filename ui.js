@@ -1603,6 +1603,12 @@ function calcularOperacion(pregunta) {
 
 const historialChatIA = [];
 
+function responderConVozIA(texto) {
+  const mensaje = msgIA(texto);
+  const botonVoz = mensaje.querySelector(".ia-speak-btn");
+  if (botonVoz) escucharMensajeIA(texto, botonVoz);
+}
+
 async function consultarChatGPT(pregunta) {
   if (!["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) {
     return generarRespuesta(pregunta);
@@ -1644,11 +1650,11 @@ function responderIA(q, silencioso) {
   t.querySelector(".bb").classList.add("typing");
   consultarChatGPT(q).then(respuesta => {
     t.remove();
-    msgIA(respuesta);
+    responderConVozIA(respuesta);
   }).catch(error => {
     t.remove();
     console.warn("La API del chatbot no está disponible; se usa el asistente local:", error);
-    msgIA(generarRespuesta(q));
+    responderConVozIA(generarRespuesta(q));
   });
 }
 $("iaForm").onsubmit = e => {

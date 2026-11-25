@@ -77,6 +77,8 @@ usa en el servidor local mediante `.env`. En Pages el chat conserva su interfaz
 y las respuestas locales básicas, pero no puede conectar directamente a la API
 hasta contar con un backend HTTPS protegido.
 
-PIBbLE también puede leer sus respuestas en voz alta y dictar preguntas desde
-el micrófono en navegadores compatibles. El dictado requiere permiso de acceso
-al micrófono; si el navegador no ofrece reconocimiento de voz, el botón se oculta.
+PIBbLE lee sus respuestas en voz alta automáticamente, incluidos los resúmenes y
+análisis del caso; el botón de altavoz permite detenerlas o volver a escucharlas.
+También puede dictar preguntas desde el micrófono en navegadores compatibles.
+El dictado requiere permiso de acceso al micrófono; si el navegador no ofrece
+reconocimiento de voz, el botón se oculta.
