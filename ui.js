@@ -273,27 +273,37 @@ function traducirTextoNatural(texto, idioma) {
   return resultado;
 }
 
-function traducirTodoElDOM(idioma) {
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+function traducirTodoElDOM(idioma, raiz = document.body) {
   const nodos = [];
-  while (walker.nextNode()) nodos.push(walker.currentNode);
+  if (raiz.nodeType === Node.TEXT_NODE) {
+    nodos.push(raiz);
+  } else {
+    const walker = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) nodos.push(walker.currentNode);
+  }
   nodos.forEach(nodo => {
     if (!nodo.nodeValue?.trim()) return;
     if (!ORIGINAL_TEXT_NODES.has(nodo)) ORIGINAL_TEXT_NODES.set(nodo, nodo.nodeValue);
     const original = ORIGINAL_TEXT_NODES.get(nodo);
-    nodo.nodeValue = idioma === "es" ? original : traducirTextoNatural(original, idioma);
+    const traducido = idioma === "es" ? original : traducirTextoNatural(original, idioma);
+    if (nodo.nodeValue !== traducido) nodo.nodeValue = traducido;
   });
 
-  document.querySelectorAll("[placeholder],[title],[aria-label]").forEach(elemento => {
+  const elementos = raiz.nodeType === Node.ELEMENT_NODE ? [raiz] : [];
+  if (raiz.querySelectorAll) {
+    elementos.push(...raiz.querySelectorAll("[placeholder],[title],[aria-label]"));
+  }
+  elementos.forEach(elemento => {
     ["placeholder", "title", "aria-label"].forEach(atributo => {
       const valor = elemento.getAttribute(atributo);
       if (!valor) return;
       const atributoOriginal = "data-original-" + atributo;
       if (!elemento.hasAttribute(atributoOriginal)) elemento.setAttribute(atributoOriginal, valor);
       const valorOriginal = elemento.getAttribute(atributoOriginal);
-      elemento.setAttribute(atributo, idioma === "es"
+      const traducido = idioma === "es"
         ? valorOriginal
-        : traducirTextoNatural(valorOriginal, idioma));
+        : traducirTextoNatural(valorOriginal, idioma);
+      if (valor !== traducido) elemento.setAttribute(atributo, traducido);
     });
   });
 }
@@ -364,12 +374,14 @@ function aplicarIdioma(idioma) {
   });
   document.querySelectorAll("[data-i18n]").forEach(elemento => {
     if (traducciones?.[elemento.dataset.i18n]) {
-      elemento.textContent = traducciones[elemento.dataset.i18n];
+      const traducido = traducciones[elemento.dataset.i18n];
+      if (elemento.textContent !== traducido) elemento.textContent = traducido;
     }
   });
   if (idioma === "es") {
     document.querySelectorAll("[data-i18n]").forEach(elemento => {
-      elemento.textContent = elemento.dataset.i18nOriginal;
+      const original = elemento.dataset.i18nOriginal;
+      if (original && elemento.textContent !== original) elemento.textContent = original;
     });
   }
   const mapaIds = {
@@ -499,19 +511,18 @@ function configurarAccesibilidad() {
 
 configurarAccesibilidad();
 
-let idiomaNlpEnCurso = false;
-const observadorIdiomas = new MutationObserver(() => {
-  if (idiomaNlpEnCurso) return;
+const observadorIdiomas = new MutationObserver(cambios => {
   const idioma = localStorage.getItem("sice_idioma") || "es";
   if (idioma === "es") return;
-  idiomaNlpEnCurso = true;
-  traducirTodoElDOM(idioma);
-  idiomaNlpEnCurso = false;
+  const raicesAgregadas = new Set();
+  cambios.forEach(cambio => {
+    cambio.addedNodes.forEach(nodo => raicesAgregadas.add(nodo));
+  });
+  raicesAgregadas.forEach(nodo => traducirTodoElDOM(idioma, nodo));
 });
 observadorIdiomas.observe(document.body, {
   childList: true,
-  subtree: true,
-  characterData: true
+  subtree: true
 });
 
 function reloj() {
