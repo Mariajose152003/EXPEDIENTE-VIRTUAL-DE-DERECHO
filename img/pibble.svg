@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="title desc">
+  <title id="title">PIBbLE</title>
+  <desc id="desc">Ilustracion amigable de un perrito blanco y marron</desc>
+  <rect width="200" height="200" rx="100" fill="#fff7ed"/>
+  <path d="M47 80C29 62 24 35 43 30c17-4 31 20 34 40z" fill="#8b5a45"/>
+  <path d="M153 80c18-18 23-45 4-50-17-4-31 20-34 40z" fill="#8b5a45"/>
+  <ellipse cx="100" cy="108" rx="61" ry="66" fill="#f7d7b5"/>
+  <ellipse cx="100" cy="125" rx="38" ry="34" fill="#fffaf5"/>
+  <ellipse cx="72" cy="98" rx="7" ry="9" fill="#2f241f"/>
+  <ellipse cx="128" cy="98" rx="7" ry="9" fill="#2f241f"/>
+  <ellipse cx="100" cy="119" rx="12" ry="9" fill="#2f241f"/>
+  <path d="M100 128c-1 12-16 15-24 5M100 128c1 12 16 15 24 5" fill="none" stroke="#7c4a3a" stroke-width="5" stroke-linecap="round"/>
+  <path d="M84 143c10 8 22 8 32 0" fill="none" stroke="#d97979" stroke-width="5" stroke-linecap="round"/>
+  <path d="M52 68c12-34 29-45 48-45 20 0 36 11 48 45-20-6-34-18-48-32-14 14-28 26-48 32z" fill="#b58b6a"/>
+  <circle cx="42" cy="49" r="7" fill="#f59e0b"/>
+  <circle cx="158" cy="49" r="7" fill="#f59e0b"/>
+</svg>

@@ -1211,7 +1211,7 @@ const KB = [
 function abrirIA() {
   $("iaModal").hidden = false;
   if (!$("iaChat").children.length)
-    msgIA("Hola, soy tu asistente IA. ¿Qué deseas saber sobre este expediente o proceso judicial?\nPuedes preguntar por: estado, partes, sentencia, última actuación, juez, avance o cronología.");
+    msgIA("Hola, soy PIBbLE. ¿Qué deseas saber sobre este expediente o proceso judicial?\nPuedes preguntar por: estado, partes, sentencia, última actuación, juez, avance, cronología o temas generales.");
   setTimeout(() => $("iaInput").focus(), 50);
 }
 function cerrarIA() { $("iaModal").hidden = true; }
@@ -1222,7 +1222,9 @@ $("iaModal").addEventListener("click", e => { if (e.target === $("iaModal")) cer
 function msgIA(t, user) {
   const d = document.createElement("div");
   d.className = "im" + (user ? " u" : "");
-  const av = `<div class="av"><i class="fa-solid ${user ? "fa-user" : "fa-robot"}"></i></div>`;
+  const av = user
+    ? `<div class="av"><i class="fa-solid fa-user"></i></div>`
+    : `<div class="av"><img src="img/pibble.svg" alt="PIBbLE"></div>`;
   d.innerHTML = user ? `<div class="bb"></div>${av}` : `${av}<div class="bb"></div>`;
   d.querySelector(".bb").textContent = t;
   $("iaChat").append(d);

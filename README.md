@@ -41,3 +41,12 @@ deployment → Source: GitHub Actions**. El flujo de `.github/workflows/deploy.y
 desplegará automáticamente los cambios enviados a `main`.
 
 El repositorio público no debe contener expedientes reales ni PDF judiciales.
+
+## PIBbLE en GitHub Pages
+
+La interfaz de PIBbLE, su imagen y el respaldo local se muestran correctamente
+en GitHub Pages. Sin embargo, GitHub Pages no puede ejecutar `start-local.ps1`
+ni guardar de forma segura la clave de OpenAI. Por seguridad, la clave solo se
+usa en el servidor local mediante `.env`. En Pages el chat conserva su interfaz
+y las respuestas locales básicas, pero no puede conectar directamente a la API
+hasta contar con un backend HTTPS protegido.
