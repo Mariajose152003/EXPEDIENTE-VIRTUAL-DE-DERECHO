@@ -866,6 +866,9 @@ body.daltonismo-tritanopia{filter:sepia(.1) saturate(.75) hue-rotate(180deg)}
 .rres{background:#fff;border:2px solid #4ade80;border-radius:8px;padding:10px;box-shadow:var(--sh-xl)}
 .rres h4{font-size:12px;font-weight:900;color:var(--gray-800);margin-bottom:8px;text-transform:uppercase}
 .rres h4 i{color:var(--green);margin-right:6px}
+.reniec-photo-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;margin:4px 0 10px;padding:8px;background:linear-gradient(135deg,#fef3c7,#fff7ed);border-radius:8px;border:1px dashed #ea580c}
+.reniec-photo{width:92px;height:112px;object-fit:cover;border:3px solid #ea580c;border-radius:8px;background:#fde7d3}
+.reniec-photo-wrap span{font-size:9px;font-weight:900;text-transform:uppercase;color:#9a3412;text-align:center}
 .rgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .rf{background:var(--gray-50);padding:6px 8px;border-radius:8px;border-left:4px solid #ea580c}
 .rf.full{grid-column:1/-1}

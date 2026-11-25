@@ -15,6 +15,20 @@ consultarlos sin conexión.
 Los documentos y los datos reales permanecen en el equipo local. No los subas a
 un repositorio público ni publiques una copia del servidor local.
 
+## Configurar el chatbot con OpenAI
+
+El chatbot utiliza una clave de OpenAI únicamente desde el servidor local. No
+guardes la clave en `ui.js`, `index.html` ni en ningún archivo publicado.
+
+1. Crea un archivo `.env` en la raíz del proyecto.
+2. Agrega una línea como `OPENAI_API_KEY=tu_clave_secreta`.
+3. Opcionalmente agrega `OPENAI_MODEL=gpt-4o-mini`.
+4. Reinicia `start-local.ps1` y usa el asistente desde `http://localhost:8123/`.
+
+`.env` está incluido en `.gitignore`. Si compartes el equipo o el proyecto,
+puedes configurar `OPENAI_API_KEY` como variable de entorno del sistema en
+lugar de crear el archivo.
+
 GitHub Pages es un servidor estático: no puede enumerar carpetas ni acceder a
 los archivos locales del equipo. El sitio de Pages permite seleccionar la
 carpeta del proyecto (o `expedientes/`) desde el navegador: los PDF y, si se

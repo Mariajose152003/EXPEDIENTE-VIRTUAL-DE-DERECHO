@@ -85,11 +85,72 @@ function Send-Bytes($response, [byte[]]$bytes, [string]$contentType, [int]$statu
   $response.OutputStream.Write($bytes, 0, $bytes.Length)
 }
 
-function Send-Json($response, $value) {
+function Send-Json($response, $value, [int]$status = 200) {
   $json = ConvertTo-Json -InputObject $value -Depth 8 -Compress
   $bytes = [Text.Encoding]::UTF8.GetBytes($json)
   $response.Headers["Cache-Control"] = "no-cache"
-  Send-Bytes $response $bytes "application/json; charset=utf-8"
+  Send-Bytes $response $bytes "application/json; charset=utf-8" $status
+}
+
+function Import-EnvFile([string]$path) {
+  if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { return }
+  Get-Content -LiteralPath $path | ForEach-Object {
+    $line = $_.Trim()
+    if (-not $line -or $line.StartsWith("#") -or $line -notmatch "^([^=]+)=(.*)$") { return }
+    $name = $Matches[1].Trim()
+    $value = $Matches[2].Trim().Trim('"').Trim("'")
+    [Environment]::SetEnvironmentVariable($name, $value, "Process")
+  }
+}
+
+function Invoke-ChatApi([System.Net.HttpListenerContext]$context) {
+  $apiKey = [Environment]::GetEnvironmentVariable("OPENAI_API_KEY", "Process")
+  if (-not $apiKey) {
+    Send-Json $context.Response ([PSCustomObject]@{
+      error = "OPENAI_API_KEY no configurada. Crea un archivo .env en la raíz del proyecto."
+    }) 503
+    return
+  }
+
+  $reader = [IO.StreamReader]::new($context.Request.InputStream, $context.Request.ContentEncoding)
+  $rawBody = $reader.ReadToEnd()
+  $reader.Dispose()
+  $payload = $rawBody | ConvertFrom-Json
+  $model = [Environment]::GetEnvironmentVariable("OPENAI_MODEL", "Process")
+  if (-not $model) { $model = "gpt-4o-mini" }
+  $apiBase = [Environment]::GetEnvironmentVariable("OPENAI_API_BASE", "Process")
+  if (-not $apiBase) { $apiBase = "https://api.openai.com/v1" }
+
+  $languageNames = @{ es = "Español"; qu = "Quechua"; ay = "Aymara" }
+  $language = [string]$payload.language
+  if (-not $languageNames.ContainsKey($language)) { $language = "es" }
+  $systemPrompt = "Eres el asistente oficial de un expediente judicial académico. Responde de forma clara, útil y segura en $($languageNames[$language]). Puedes calcular operaciones matemáticas, explicar temas generales y responder preguntas básicas. No afirmes que eres un funcionario real ni inventes datos verificables. Usa el contexto proporcionado solo cuando sea relevante."
+  $messages = @([PSCustomObject]@{ role = "system"; content = $systemPrompt })
+  $messages += [PSCustomObject]@{ role = "system"; content = "Contexto académico del expediente: $($payload.context)" }
+  if ($payload.history) {
+    foreach ($item in $payload.history) {
+      $messages += [PSCustomObject]@{ role = [string]$item.role; content = [string]$item.content }
+    }
+  }
+  $messages += [PSCustomObject]@{ role = "user"; content = [string]$payload.message }
+
+  $requestBody = [PSCustomObject]@{
+    model = $model
+    messages = $messages
+    temperature = 0.4
+  } | ConvertTo-Json -Depth 8 -Compress
+
+  try {
+    $headers = @{ Authorization = "Bearer $apiKey" }
+    $responseApi = Invoke-RestMethod -Uri "$apiBase/chat/completions" -Method Post -Headers $headers -ContentType "application/json" -Body $requestBody -TimeoutSec 60
+    $reply = [string]$responseApi.choices[0].message.content
+    Send-Json $context.Response ([PSCustomObject]@{ reply = $reply })
+  }
+  catch {
+    $detail = $_.ErrorDetails.Message
+    if (-not $detail) { $detail = $_.Exception.Message }
+    Send-Json $context.Response ([PSCustomObject]@{ error = "No se pudo consultar la API: $detail" }) 502
+  }
 }
 
 function Get-ContentType([string]$path) {
@@ -172,9 +233,16 @@ function Serve-File($context, [string]$path) {
   }
 }
 
+Import-EnvFile (Join-Path $root ".env")
+
 $listener.Start()
 Write-Host "Web local: $prefix"
 Write-Host "PDF encontrados: $((Get-PdfIndex).count)"
+if ([Environment]::GetEnvironmentVariable("OPENAI_API_KEY", "Process")) {
+  Write-Host "Chatbot: API configurada"
+} else {
+  Write-Host "Chatbot: modo local (configura OPENAI_API_KEY para habilitar la API)"
+}
 Write-Host "Presiona Ctrl+C para detener el servidor."
 
 while ($listener.IsListening) {
@@ -186,6 +254,13 @@ while ($listener.IsListening) {
         $context.Response.StatusCode = 405
       } else {
         Send-Json $context.Response (Get-PdfIndex)
+      }
+    } elseif ($requestPath -eq "/api/chat") {
+      if ($context.Request.HttpMethod -ne "POST") {
+        $context.Response.StatusCode = 405
+        Send-Json $context.Response ([PSCustomObject]@{ error = "Método no permitido." })
+      } else {
+        Invoke-ChatApi $context
       }
     } else {
       $relative = $requestPath.TrimStart([char]"/").Replace("/", "\")

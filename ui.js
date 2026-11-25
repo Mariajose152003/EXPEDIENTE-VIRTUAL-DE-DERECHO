@@ -131,6 +131,86 @@ const LABELS_IDIOMA = {
   ay: "Aymara"
 };
 
+const PALABRAS_TRADUCIDAS = {
+  qu: {
+    "Búsqueda":"Maskay","Expedientes":"Expedientekuna","Expediente":"Expediente","Inicio":"Qallariy",
+    "Usuario":"Runa","Contraseña":"Chimpu","Nombre":"Suti","completo":"hunt'a","Ingresar":"Yaykuy",
+    "Sistema":"Sistema","Consultar":"Maskay","Filtros":"Akllanakuna","Código":"Chimpu",
+    "Accesibilidad":"Chaskiy","Idioma":"Rimay","Aymara":"Aymara","Quechua":"Quechua","Español":"Español",
+    "Daltonismo":"Llimpi pantaq","Texto":"Qillqa","grande":"Hatun","Alto":"Sumaq","contraste":"llimpiy",
+    "Aumentar":"Hatunyachiy","espaciado":"Ch'usaq","Restaurar":"Kutichiy","Datos":"Willakuy",
+    "DNI":"DNI","no encontrado":"mana tarisqa","No":"Mana","se encontró":"tarirusqachu",
+    "en":"-","la":"-","base":"hallch'a","datos":"willakuy","Nombres":"Sutikuna","Apellidos":"Apellidokuna",
+    "Sexo":"Qari/warmi","Nacimiento":"Paqarisqa","Civil":"Civil","Estado":"Imayna",
+    "Distrito":"Distritu","Provincia":"Provincya","Departamento":"Suyu","Dirección":"Wasiykiti",
+    "Imprimir":"Imprimi","Reporte":"Willakuy","Resumen":"Uchuy willakuy","Inteligente":"Yachay",
+    "Examinar":"Qhawariy","Caso":"Qayllana","Imprimir":"Imprimi","Volver":"Kutiy",
+    "Documento":"Qillqa","Documentos":"Qillqakuna","Visualizar":"Qhaway","Guardar":"Waqaychay",
+    "Actuaciones":"Ruwanakuna","Fecha":"Pacha","Acto":"Ruwa","Procesal":"Juchuy",
+    "Gestión":"Kamachiy","Línea":"Seqe","Tiempo":"Pacha","Sujetos":"Runakuna",
+    "Procesales":"Juchuy","Registrados":"Qillqasqa","SÍNTESIS":"Uchuy willakuy","Jurídica":"Ley",
+    "Resultados":"Tarirusqakuna","Nueva":"Musuq","Búsqueda":"Maskay","Cerrar":"Wichqay",
+    "Salir":"Lluqsiy","ayuda":"yanapa","Ayuda":"Yanapa","Preguntas":"Tapukuykuna","Frecuentes":"Sapa"
+  },
+  ay: {
+    "Búsqueda":"Thaqhaña","Expedientes":"Expedientenaka","Expediente":"Expediente","Inicio":"Qalltawi",
+    "Usuario":"Apnaqiri","Contraseña":"Ch'imi","Nombre":"Suti","completo":"taqpacha","Ingresar":"Mantaña",
+    "Sistema":"Sistema","Consultar":"Thaqhaña","Filtros":"Ajllinakuna","Código":"Jakhuwi",
+    "Accesibilidad":"Jani jark'aqaña","Idioma":"Arunta","Aymara":"Aymara","Quechua":"Quechua","Español":"Español",
+    "Daltonismo":"Sami panti","Texto":"Qillqata","grande":"Jach'a","Alto":"Jach'a","contraste":"ch'amaka",
+    "Aumentar":"Jayarst'aña","espaciado":"Jayakipt'a","Restaurar":"Kutxataña","Datos":"Yatiyawi",
+    "DNI":"DNI","no encontrado":"jani jikxatasïti","No":"Jani","se encontró":"jikxataskiti",
+    "base":"qallta","Nombres":"Sutinkana","Apellidos":"Apellidonkana","Sexo":"Chacha/warmi",
+    "Nacimiento":"Jutawi","Civil":"Civil","Estado":"Kawkjaski","Distrito":"Distritu",
+    "Provincia":"Provincya","Departamento":"Jach'a marka","Dirección":"Utankaña","Imprimir":"Imprimiña",
+    "Reporte":"Yatiyawi","Resumen":"Jisk'a yatiyawi","Inteligente":"Yatiñani","Examinar":"Uñjaña",
+    "Caso":"Pankarata","Volver":"Kutt'aña","Documento":"Qillqata","Documentos":"Qillqatana",
+    "Visualizar":"Uñjaña","Guardar":"Imaña","Actuaciones":"Luratanaka","Fecha":"Urukama",
+    "Acto":"Luratata","Procesal":"Justicia","Gestión":"Irpirawi","Línea":"Jakhuta","Tiempo":"Pacha",
+    "Sujetos":"Runanak","Procesales":"Justicia","Registrados":"Qillqt'ata","Resultados":"Jikxatatanaka",
+    "Nueva":"Machaq","Cerrar":"Jark'aña","Salir":"Mistuña","Ayuda":"Yanapa","Preguntas":"Tapunak",
+    "Frecuentes":"Sapa"
+  }
+};
+
+const ORIGINAL_TEXT_NODES = new WeakMap();
+
+function traducirTextoNatural(texto, idioma) {
+  if (idioma === "es" || !texto?.trim()) return texto;
+  const mapa = PALABRAS_TRADUCIDAS[idioma];
+  let resultado = texto;
+  Object.keys(mapa).sort((a, b) => b.length - a.length).forEach(espanol => {
+    const regex = new RegExp(espanol.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    resultado = resultado.replace(regex, coincidencia =>
+      coincidencia === coincidencia.toUpperCase() ? mapa[espanol].toUpperCase() : mapa[espanol]
+    );
+  });
+  return resultado;
+}
+
+function traducirTodoElDOM(idioma) {
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodos = [];
+  while (walker.nextNode()) nodos.push(walker.currentNode);
+  nodos.forEach(nodo => {
+    if (!nodo.nodeValue?.trim()) return;
+    if (!ORIGINAL_TEXT_NODES.has(nodo)) ORIGINAL_TEXT_NODES.set(nodo, nodo.nodeValue);
+    const original = ORIGINAL_TEXT_NODES.get(nodo);
+    nodo.nodeValue = idioma === "es" ? original : traducirTextoNatural(original, idioma);
+  });
+
+  document.querySelectorAll("[placeholder],[title],[aria-label]").forEach(elemento => {
+    ["placeholder", "title", "aria-label"].forEach(atributo => {
+      const valor = elemento.getAttribute(atributo);
+      if (!valor) return;
+      if (!elemento.dataset["original" + atributo]) elemento.dataset["original" + atributo] = valor;
+      elemento.setAttribute(atributo, idioma === "es"
+        ? elemento.dataset["original" + atributo]
+        : traducirTextoNatural(valor, idioma));
+    });
+  });
+}
+
 const TRADUCCIONES_UI = {
   qu: {
     brandTitle: "PERÚ PAÍS JUSTICIA WASI",
@@ -191,6 +271,7 @@ const TRADUCCIONES_UI = {
 function aplicarIdioma(idioma) {
   const traducciones = TRADUCCIONES_UI[idioma];
   document.documentElement.lang = idioma;
+  traducirTodoElDOM(idioma);
   document.querySelectorAll("[data-i18n]").forEach(elemento => {
     if (!elemento.dataset.i18nOriginal) elemento.dataset.i18nOriginal = elemento.textContent;
   });
@@ -332,6 +413,21 @@ function configurarAccesibilidad() {
 }
 
 configurarAccesibilidad();
+
+let idiomaNlpEnCurso = false;
+const observadorIdiomas = new MutationObserver(() => {
+  if (idiomaNlpEnCurso) return;
+  const idioma = localStorage.getItem("sice_idioma") || "es";
+  if (idioma === "es") return;
+  idiomaNlpEnCurso = true;
+  traducirTodoElDOM(idioma);
+  idiomaNlpEnCurso = false;
+});
+observadorIdiomas.observe(document.body, {
+  childList: true,
+  subtree: true,
+  characterData: true
+});
 
 function reloj() {
   const n = new Date(), p = v => String(v).padStart(2, "0"), r = Math.max(0, finSesion - Date.now());
@@ -1172,11 +1268,52 @@ function generarRespuesta(q) {
   return x ? "Puedo ayudarte con: estado, partes, sentencia, última actuación, juez, avance, próximo paso o cronología del expediente."
            : "Primero consulta un expediente para darte información específica. También puedo explicarte el formato del código, tipos de juzgado o leyes relacionadas.";
 }
+
+const historialChatIA = [];
+
+async function consultarChatGPT(pregunta) {
+  const contextoExpediente = expActual ? JSON.stringify({
+    codigo: expActual.codigo,
+    reporte: expActual.reporte,
+    progreso: expActual.progreso,
+    partes: expActual.partes,
+    actuaciones: expActual.actuaciones
+  }) : "No hay expediente seleccionado.";
+
+  const respuesta = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: pregunta,
+      history: historialChatIA.slice(-10),
+      context: contextoExpediente,
+      language: document.documentElement.lang || "es"
+    })
+  });
+
+  const datos = await respuesta.json().catch(() => ({}));
+  if (!respuesta.ok) {
+    throw new Error(datos.error || `Error HTTP ${respuesta.status}`);
+  }
+
+  historialChatIA.push({ role: "user", content: pregunta });
+  historialChatIA.push({ role: "assistant", content: datos.reply });
+  if (historialChatIA.length > 20) historialChatIA.splice(0, historialChatIA.length - 20);
+  return datos.reply;
+}
+
 function responderIA(q, silencioso) {
   if (!silencioso) msgIA(q, true);
   const t = msgIA("Escribiendo...");
   t.querySelector(".bb").classList.add("typing");
-  setTimeout(() => { t.remove(); msgIA(generarRespuesta(q)); }, 600);
+  consultarChatGPT(q).then(respuesta => {
+    t.remove();
+    msgIA(respuesta);
+  }).catch(error => {
+    t.remove();
+    console.error("No se pudo consultar la API del chatbot:", error);
+    msgIA(generarRespuesta(q) + "\n\n(Respuesta local: configura OPENAI_API_KEY para activar el chatbot completo.)");
+  });
 }
 $("iaForm").onsubmit = e => {
   e.preventDefault();
@@ -1217,6 +1354,23 @@ function datosDNI(dni) {
     ["Dir. Completa", `${dir}, ${di}, ${pr} - ${d} ${21000 + Math.abs(s % 1000)}`, "full yel"]
   ];
 }
+
+function crearFotoFicticia(dni, sexo) {
+  const tonoPiel = ["#f2c7a5", "#d9a56c", "#9c6847", "#6f4a32"][parseInt(dni, 10) % 4];
+  const cabello = ["#24120e", "#5a2d1b", "#1f2937", "#8b5a35"][parseInt(dni.slice(-2), 10) % 4];
+  const fondo = sexo === "Femenino" ? "#f9a8d4" : "#93c5fd";
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="184" height="224" viewBox="0 0 184 224">
+    <rect width="184" height="224" fill="${fondo}"/>
+    <rect y="164" width="184" height="60" fill="#7f1d1d"/>
+    <ellipse cx="92" cy="94" rx="48" ry="58" fill="${tonoPiel}"/>
+    <path d="M44 86c2-44 25-66 49-66 31 0 50 21 48 69-13-11-22-25-25-40-17 18-40 29-72 37z" fill="${cabello}"/>
+    <circle cx="75" cy="96" r="4" fill="#312e2b"/><circle cx="109" cy="96" r="4" fill="#312e2b"/>
+    <path d="M80 122c8 7 18 7 26 0" fill="none" stroke="#7f1d1d" stroke-width="4" stroke-linecap="round"/>
+    <rect x="36" y="176" width="112" height="48" rx="18" fill="#fff"/>
+  </svg>`;
+  return "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg);
+}
+
 function buscarDNI() {
   const dni = $("dniInput").value.trim();
   if (!/^\d{8}$/.test(dni)) {
@@ -1225,9 +1379,13 @@ function buscarDNI() {
   }
   toast("Buscando en RENIEC...");
   setTimeout(() => {
-    $("reniecGrid").innerHTML = datosDNI(dni).map(([k, v, c]) => `<div class="rf ${c || ""}"><p>${k}</p><b>${esc(v)}</b></div>`).join("");
+    const datos = datosDNI(dni);
+    const sexo = datos.find(([clave]) => clave === "Sexo")?.[1] || "Masculino";
+    $("reniecPhoto").src = crearFotoFicticia(dni, sexo);
+    $("reniecPhoto").alt = "Fotografía ficticia generada para simulación académica";
+    $("reniecGrid").innerHTML = datos.map(([k, v, c]) => `<div class="rf ${c || ""}"><p>${k}</p><b>${esc(v)}</b></div>`).join("");
     $("reniecError").hidden = true; $("reniecResults").hidden = false;
-    toast("Datos encontrados (simulación)");
+    toast("Datos ficticios encontrados (simulación)");
   }, 700);
 }
 $("btnBuscarDni").onclick = buscarDNI;
