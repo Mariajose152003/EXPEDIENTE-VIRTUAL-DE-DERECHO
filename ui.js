@@ -111,6 +111,7 @@ $("formLogin").onsubmit = async e => {
 
 function entrar(usuario, nombre) {
   if (modalAdv) modalAdv.classList.add("adv-hidden");
+  document.body.classList.add("app-active");
   $("vistaLogin").hidden = true;
   $("vistaApp").hidden = false;
   $("aiAssistantBtn").hidden = false;
@@ -497,7 +498,7 @@ document.querySelectorAll(".stab").forEach(t => t.onclick = () => {
   $("busqMsg").textContent = "";
 });
 
-$("btnAutocompletarBusqueda").onclick = () => {
+function autocompletarBusqueda() {
   modo = "filtros";
   document.querySelectorAll(".stab").forEach(b => b.classList.toggle("on", b.dataset.t === "filtros"));
   $("tab-filtros").hidden = false;
@@ -513,12 +514,20 @@ $("btnAutocompletarBusqueda").onclick = () => {
     $("c" + (i + 1)).value = parte;
   });
 
+  [$("fDist"), $("fInst"), $("fEsp"), $("fAnio"), $("fNum"), $("fParte")].forEach(elemento => {
+    elemento.dispatchEvent(new Event("input", { bubbles: true }));
+    elemento.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+
   $("captcha-input").value = capTxt;
   $("captcha-input").classList.remove("err");
   $("busqMsg").className = "msg ok";
   $("busqMsg").textContent = "Formulario, código de expediente y CAPTCHA completados.";
   toast("Todos los datos de demostración fueron cargados");
-};
+}
+
+$("btnAutocompletarBusqueda").addEventListener("click", autocompletarBusqueda);
+window.autocompletarBusqueda = autocompletarBusqueda;
 
 // Autoavance entre casillas del código
 for (let i = 1; i <= 7; i++) {
@@ -1215,7 +1224,10 @@ function abrirIA() {
   setTimeout(() => $("iaInput").focus(), 50);
 }
 function cerrarIA() { $("iaModal").hidden = true; }
-$("aiAssistantBtn").onclick = abrirIA;
+$("aiAssistantBtn").addEventListener("click", e => {
+  e.preventDefault();
+  abrirIA();
+});
 $("btnCerrarIA").onclick = cerrarIA;
 $("iaModal").addEventListener("click", e => { if (e.target === $("iaModal")) cerrarIA(); });
 
